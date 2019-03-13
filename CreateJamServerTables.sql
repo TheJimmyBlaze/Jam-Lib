@@ -1,0 +1,65 @@
+
+CREATE TABLE Account (
+	AccountID UNIQUEIDENTIFIER NOT NULL,
+	LastUpdateUTC DATETIME NOT NULL,
+
+	UserName VARCHAR(32) NOT NULL,
+	Approved BIT NOT NULL
+
+	CONSTRAINT accPKNClstAccountID PRIMARY KEY NONCLUSTERED (AccountID),
+	CONSTRAINT accUniqClstUserName UNIQUE CLUSTERED (Username)
+)
+
+CREATE TABLE AccountAccessCode (
+	AccountAccessCodeID UNIQUEIDENTIFIER NOT NULL,
+	LastUpdateUTC DATETIME NOT NULL,
+
+	AccountID UNIQUEIDENTIFIER NOT NULL,
+	AccessCode VARCHAR(256) NOT NULL
+
+	CONSTRAINT aacPKNClstAccountAccessCodeID PRIMARY KEY NONCLUSTERED (AccountAccessCodeID),
+	CONSTRAINT aacFKAccountID FOREIGN KEY (AccountID) REFERENCES Account (AccountID),
+	CONSTRAINT aacUniqClstAccountID UNIQUE CLUSTERED (AccountID)
+)
+
+CREATE TABLE JamAddress (
+	JamAddressID UNIQUEIDENTIFIER NOT NULL,
+	LastUpdateUTC DATETIME NOT NULL,
+
+	AccountID UNIQUEIDENTIFIER NOT NULL,
+	AddressName VARCHAR(32) NOT NULL,
+	SoftwareIdentifier UNIQUEIDENTIFIER NOT NULL,
+	AdvertiseAsPublic BIT NOT NULL
+
+	CONSTRAINT jaPKNClstJamAddressID PRIMARY KEY NONCLUSTERED (JamAddressID),
+	CONSTRAINT jaFKAccountID FOREIGN KEY (AccountID) REFERENCES Account (AccountID),
+	CONSTRAINT jaUniqClstAddressName UNIQUE CLUSTERED (AddressName),
+)
+
+CREATE TABLE Permission (
+	PermissionID UNIQUEIDENTIFIER NOT NULL,
+	LastUpdateUTC DATETIME NOT NULL,
+
+	PermissionName VARCHAR(32) NOT NULL,
+	PermissionDescription VARCHAR(256) NULL,
+	ParentPermissionID UNIQUEIDENTIFIER NOT NULL
+
+	CONSTRAINT permPKPermissionID PRIMARY KEY (PermissionID),
+	CONSTRAINT permFKParentPermissionID FOREIGN KEY (ParentPermissionID) REFERENCES Permission (PermissionID),
+	CONSTRAINT permUniqName UNIQUE (PermissionName)
+)
+
+CREATE TABLE AccountPermissionAssociation (
+	AccountPermissionID UNIQUEIDENTIFIER NOT NULL,
+	LastUpdateUTC DATETIME NOT NULL,
+
+	AccountID UNIQUEIDENTIFIER NOT NULL,
+	PermissionID UNIQUEIDENTIFIER NOT NULL
+
+	CONSTRAINT apaPKNClstAccountPermissionID PRIMARY KEY NONCLUSTERED (AccountPermissionID),
+	CONSTRAINT apaFKAccountID FOREIGN KEY (AccountID) REFERENCES Account (AccountID),
+	CONSTRAINT FapaKPermissionID FOREIGN KEY (PermissionID) REFERENCES Permission (PermissionID),
+	CONSTRAINT apaUniqAccountIDPermissionID UNIQUE (AccountID, PermissionID),
+	
+	INDEX IdxClstAccountID CLUSTERED (AccountID)
+)
