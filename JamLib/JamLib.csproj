@@ -12,6 +12,8 @@
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,8 +33,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -42,14 +53,73 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client\JamClient.cs" />
+    <Compile Include="Database\Account.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\AccountAccessCode.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\AccountPermissionAssociation.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\JamAddress.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\JamServerEntityDataModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JamServerEntityDataModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\JamServerEntityDataModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\JamServerEntityDataModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JamServerEntityDataModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Database\Permission.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\AccountManager.cs" />
+    <Compile Include="Domain\Cryptography\SHA256HashFactory.cs" />
+    <Compile Include="Domain\Cryptography\IHashFactory.cs" />
     <Compile Include="JamPacket.cs" />
     <Compile Include="JamPacketHeader.cs" />
     <Compile Include="Server\JamServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\JamServerConnection.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Database\" />
+    <EntityDeploy Include="Database\JamServerEntityDataModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>JamServerEntityDataModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <None Include="Database\JamServerEntityDataModel.edmx.diagram">
+      <DependentUpon>JamServerEntityDataModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Database\JamServerEntityDataModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>JamServerEntityDataModel.Context.cs</LastGenOutput>
+      <DependentUpon>JamServerEntityDataModel.edmx</DependentUpon>
+    </Content>
+    <Content Include="Database\JamServerEntityDataModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>JamServerEntityDataModel.edmx</DependentUpon>
+      <LastGenOutput>JamServerEntityDataModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
