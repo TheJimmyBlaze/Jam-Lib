@@ -19,7 +19,7 @@ namespace JamLib.Database
         public System.Guid AccountID { get; set; }
         public System.Guid PermissionID { get; set; }
     
-        public virtual Account Account { get; set; }
         public virtual Permission Permission { get; set; }
+        public virtual Account Account { get; set; }
     }
 }

@@ -40,7 +40,7 @@ namespace SandBox
             byte[] pepper = Encoding.ASCII.GetBytes("This is a test pepper, should probably make a better one than this lol!");
             SHA256HashFactory hashFactory = new SHA256HashFactory(HASH_ITERATIONS, pepper);
 
-            Account account = AccountManagement.CreateAccount("Jam", "newPassword1", hashFactory, true);
+            JamAccount account = new JamAccount("Jam", "newPassword1", hashFactory, true);
 
             JamServerEntities context = new JamServerEntities();
             context.Accounts.Add(account);

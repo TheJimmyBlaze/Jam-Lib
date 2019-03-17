@@ -11,7 +11,7 @@
           </Key>
           <Property Name="AccountID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="LastUpdateUTC" Type="datetime" Nullable="false" />
-          <Property Name="UserName" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="Username" Type="varchar" MaxLength="32" Nullable="false" />
           <Property Name="Approved" Type="bit" Nullable="false" />
         </EntityType>
         <EntityType Name="AccountAccessCode">
@@ -144,18 +144,6 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="JamServerModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Account">
-          <Key>
-            <PropertyRef Name="AccountID" />
-          </Key>
-          <Property Name="AccountID" Type="Guid" Nullable="false" />
-          <Property Name="LastUpdateUTC" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="UserName" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="Approved" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="AccountPermissionAssociations" Relationship="Self.apaFKAccountID" FromRole="Account" ToRole="AccountPermissionAssociation" />
-          <NavigationProperty Name="JamAddresses" Relationship="Self.jaFKAccountID" FromRole="Account" ToRole="JamAddress" />
-          <NavigationProperty Name="AccountAccessCodes" Relationship="JamServerModel.aacFKAccountID" FromRole="Account" ToRole="AccountAccessCode" />
-        </EntityType>
         <EntityType Name="AccountPermissionAssociation">
           <Key>
             <PropertyRef Name="AccountPermissionID" />
@@ -164,8 +152,8 @@
           <Property Name="LastUpdateUTC" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="AccountID" Type="Guid" Nullable="false" />
           <Property Name="PermissionID" Type="Guid" Nullable="false" />
-          <NavigationProperty Name="Account" Relationship="Self.apaFKAccountID" FromRole="AccountPermissionAssociation" ToRole="Account" />
           <NavigationProperty Name="Permission" Relationship="Self.FapaKPermissionID" FromRole="AccountPermissionAssociation" ToRole="Permission" />
+          <NavigationProperty Name="Account" Relationship="JamServerModel.apaFKAccountID" FromRole="AccountPermissionAssociation" ToRole="Account" />
         </EntityType>
         <EntityType Name="JamAddress">
           <Key>
@@ -177,7 +165,7 @@
           <Property Name="AddressName" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="SoftwareIdentifier" Type="Guid" Nullable="false" />
           <Property Name="AdvertiseAsPublic" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Account" Relationship="Self.jaFKAccountID" FromRole="JamAddress" ToRole="Account" />
+          <NavigationProperty Name="Account" Relationship="JamServerModel.jaFKAccountID" FromRole="JamAddress" ToRole="Account" />
         </EntityType>
         <EntityType Name="Permission">
           <Key>
@@ -192,30 +180,6 @@
           <NavigationProperty Name="Permission1" Relationship="Self.permFKParentPermissionID" FromRole="Permission" ToRole="Permission1" />
           <NavigationProperty Name="Permission2" Relationship="Self.permFKParentPermissionID" FromRole="Permission1" ToRole="Permission" />
         </EntityType>
-        <Association Name="apaFKAccountID">
-          <End Role="Account" Type="Self.Account" Multiplicity="1" />
-          <End Role="AccountPermissionAssociation" Type="Self.AccountPermissionAssociation" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Account">
-              <PropertyRef Name="AccountID" />
-            </Principal>
-            <Dependent Role="AccountPermissionAssociation">
-              <PropertyRef Name="AccountID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="jaFKAccountID">
-          <End Role="Account" Type="Self.Account" Multiplicity="1" />
-          <End Role="JamAddress" Type="Self.JamAddress" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Account">
-              <PropertyRef Name="AccountID" />
-            </Principal>
-            <Dependent Role="JamAddress">
-              <PropertyRef Name="AccountID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FapaKPermissionID">
           <End Role="Permission" Type="Self.Permission" Multiplicity="1" />
           <End Role="AccountPermissionAssociation" Type="Self.AccountPermissionAssociation" Multiplicity="*" />
@@ -241,18 +205,9 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="JamServerEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Accounts" EntityType="Self.Account" />
           <EntitySet Name="AccountPermissionAssociations" EntityType="Self.AccountPermissionAssociation" />
           <EntitySet Name="JamAddresses" EntityType="Self.JamAddress" />
           <EntitySet Name="Permissions" EntityType="Self.Permission" />
-          <AssociationSet Name="apaFKAccountID" Association="Self.apaFKAccountID">
-            <End Role="Account" EntitySet="Accounts" />
-            <End Role="AccountPermissionAssociation" EntitySet="AccountPermissionAssociations" />
-          </AssociationSet>
-          <AssociationSet Name="jaFKAccountID" Association="Self.jaFKAccountID">
-            <End Role="Account" EntitySet="Accounts" />
-            <End Role="JamAddress" EntitySet="JamAddresses" />
-          </AssociationSet>
           <AssociationSet Name="FapaKPermissionID" Association="Self.FapaKPermissionID">
             <End Role="Permission" EntitySet="Permissions" />
             <End Role="AccountPermissionAssociation" EntitySet="AccountPermissionAssociations" />
@@ -262,11 +217,20 @@
             <End Role="Permission1" EntitySet="Permissions" />
           </AssociationSet>
           <EntitySet Name="AccountAccessCodes" EntityType="JamServerModel.AccountAccessCode" />
+          <EntitySet Name="Accounts" EntityType="JamServerModel.Account" />
           <AssociationSet Name="aacFKAccountID" Association="JamServerModel.aacFKAccountID">
             <End Role="Account" EntitySet="Accounts" />
             <End Role="AccountAccessCode" EntitySet="AccountAccessCodes" />
           </AssociationSet>
-        </EntityContainer>
+          <AssociationSet Name="apaFKAccountID" Association="JamServerModel.apaFKAccountID">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="AccountPermissionAssociation" EntitySet="AccountPermissionAssociations" />
+          </AssociationSet>
+          <AssociationSet Name="jaFKAccountID" Association="JamServerModel.jaFKAccountID">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="JamAddress" EntitySet="JamAddresses" />
+          </AssociationSet>
+          </EntityContainer>
         <EntityType Name="AccountAccessCode">
           <Key>
             <PropertyRef Name="AccountAccessCodeID" />
@@ -276,6 +240,18 @@
           <Property Name="AccountID" Type="Guid" Nullable="false" />
           <Property Name="AccessCode" Type="Binary" Nullable="false" MaxLength="128" FixedLength="false" />
           <NavigationProperty Name="Account" Relationship="JamServerModel.aacFKAccountID" FromRole="AccountAccessCode" ToRole="Account" />
+        </EntityType>
+        <EntityType Name="Account">
+          <Key>
+            <PropertyRef Name="AccountID" />
+          </Key>
+          <Property Name="AccountID" Type="Guid" Nullable="false" />
+          <Property Name="LastUpdateUTC" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Username" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="Approved" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="AccountAccessCodes" Relationship="JamServerModel.aacFKAccountID" FromRole="Account" ToRole="AccountAccessCode" />
+          <NavigationProperty Name="AccountPermissionAssociations" Relationship="JamServerModel.apaFKAccountID" FromRole="Account" ToRole="AccountPermissionAssociation" />
+          <NavigationProperty Name="JamAddresses" Relationship="JamServerModel.jaFKAccountID" FromRole="Account" ToRole="JamAddress" />
         </EntityType>
         <Association Name="aacFKAccountID">
           <End Type="JamServerModel.Account" Role="Account" Multiplicity="1" />
@@ -289,22 +265,36 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
+        <Association Name="apaFKAccountID">
+          <End Type="JamServerModel.Account" Role="Account" Multiplicity="1" />
+          <End Type="JamServerModel.AccountPermissionAssociation" Role="AccountPermissionAssociation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="AccountPermissionAssociation">
+              <PropertyRef Name="AccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="jaFKAccountID">
+          <End Type="JamServerModel.Account" Role="Account" Multiplicity="1" />
+          <End Type="JamServerModel.JamAddress" Role="JamAddress" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="JamAddress">
+              <PropertyRef Name="AccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="JamServerModelStoreContainer" CdmEntityContainer="JamServerEntities">
-          <EntitySetMapping Name="Accounts">
-            <EntityTypeMapping TypeName="JamServerModel.Account">
-              <MappingFragment StoreEntitySet="Account">
-                <ScalarProperty Name="AccountID" ColumnName="AccountID" />
-                <ScalarProperty Name="LastUpdateUTC" ColumnName="LastUpdateUTC" />
-                <ScalarProperty Name="UserName" ColumnName="UserName" />
-                <ScalarProperty Name="Approved" ColumnName="Approved" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="AccountPermissionAssociations">
             <EntityTypeMapping TypeName="JamServerModel.AccountPermissionAssociation">
               <MappingFragment StoreEntitySet="AccountPermissionAssociation">
@@ -345,6 +335,16 @@
                 <ScalarProperty Name="AccountID" ColumnName="AccountID" />
                 <ScalarProperty Name="LastUpdateUTC" ColumnName="LastUpdateUTC" />
                 <ScalarProperty Name="AccountAccessCodeID" ColumnName="AccountAccessCodeID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Accounts">
+            <EntityTypeMapping TypeName="JamServerModel.Account">
+              <MappingFragment StoreEntitySet="Account">
+                <ScalarProperty Name="Approved" ColumnName="Approved" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+                <ScalarProperty Name="LastUpdateUTC" ColumnName="LastUpdateUTC" />
+                <ScalarProperty Name="AccountID" ColumnName="AccountID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

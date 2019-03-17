@@ -83,9 +83,9 @@
     <Compile Include="Database\Permission.cs">
       <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Domain\AccountManager.cs" />
     <Compile Include="Domain\Cryptography\SHA256HashFactory.cs" />
     <Compile Include="Domain\Cryptography\IHashFactory.cs" />
+    <Compile Include="Domain\JamAccount.cs" />
     <Compile Include="JamPacket.cs" />
     <Compile Include="JamPacketHeader.cs" />
     <Compile Include="Server\JamServer.cs" />

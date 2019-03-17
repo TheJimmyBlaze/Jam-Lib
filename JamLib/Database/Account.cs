@@ -17,21 +17,21 @@ namespace JamLib.Database
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Account()
         {
+            this.AccountAccessCodes = new HashSet<AccountAccessCode>();
             this.AccountPermissionAssociations = new HashSet<AccountPermissionAssociation>();
             this.JamAddresses = new HashSet<JamAddress>();
-            this.AccountAccessCodes = new HashSet<AccountAccessCode>();
         }
     
         public System.Guid AccountID { get; set; }
         public System.DateTime LastUpdateUTC { get; set; }
-        public string UserName { get; set; }
+        public string Username { get; set; }
         public bool Approved { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<AccountAccessCode> AccountAccessCodes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AccountPermissionAssociation> AccountPermissionAssociations { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<JamAddress> JamAddresses { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AccountAccessCode> AccountAccessCodes { get; set; }
     }
 }

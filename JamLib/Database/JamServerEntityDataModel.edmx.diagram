@@ -5,17 +5,17 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="8d705f97f356407c9103c737564eed28" Name="Diagram1">
-        <EntityTypeShape EntityType="JamServerModel.Account" Width="1.5" PointX="0.75" PointY="5" IsExpanded="true" />
         <EntityTypeShape EntityType="JamServerModel.AccountPermissionAssociation" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
         <EntityTypeShape EntityType="JamServerModel.JamAddress" Width="1.5" PointX="3" PointY="7.375" IsExpanded="true" />
         <EntityTypeShape EntityType="JamServerModel.Permission" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
-        <AssociationConnector Association="JamServerModel.apaFKAccountID" ManuallyRouted="false" />
-        <AssociationConnector Association="JamServerModel.jaFKAccountID" ManuallyRouted="false" />
         <AssociationConnector Association="JamServerModel.FapaKPermissionID" ManuallyRouted="false" />
         <AssociationConnector Association="JamServerModel.permFKParentPermissionID" ManuallyRouted="false" />
         <EntityTypeShape EntityType="JamServerModel.AccountAccessCode" Width="1.5" PointX="3" PointY="4.25" />
+        <EntityTypeShape EntityType="JamServerModel.Account" Width="1.5" PointX="0.75" PointY="5.25" />
         <AssociationConnector Association="JamServerModel.aacFKAccountID" />
-      </Diagram>
+        <AssociationConnector Association="JamServerModel.apaFKAccountID" />
+        <AssociationConnector Association="JamServerModel.jaFKAccountID" />
+        </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
 </edmx:Edmx>
