@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -10,36 +11,29 @@ namespace JamLib.Server
 {
     public class JamServerConnection: IDisposable
     {
-        private Socket socket;
+        private readonly SslStream stream;
 
         private bool alive;
 
-        public JamServerConnection(Socket socket)
+        public JamServerConnection(SslStream stream)
         {
-            this.socket = socket;
+            this.stream = stream;
             alive = true;
 
-            Thread listeningThread = new Thread(Listen);
-            listeningThread.Start();
+            Task.Run(() => Listen());
         }
         
         public void Dispose()
         {
             alive = false;
-
-            socket.Shutdown(SocketShutdown.Both);
-            socket.Close();
+            stream.Close();
         }
 
         public int Send(JamPacket packet)
         {
             int sentBytes = 0;
 
-            Thread thread = new Thread(() =>
-            {
-                sentBytes = packet.Send(socket);
-            });
-            thread.Start();
+            Task.Run(() => { sentBytes = packet.Send(stream); });
 
             while (sentBytes == 0)
                 Thread.Sleep(50);
@@ -51,7 +45,7 @@ namespace JamLib.Server
         {
             while (alive)
             {
-                JamPacket packet = JamPacket.Receive(socket);
+                JamPacket packet = JamPacket.Receive(stream);
                 Console.WriteLine(packet);
             }
         }

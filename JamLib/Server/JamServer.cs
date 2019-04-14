@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,18 +13,19 @@ namespace JamLib.Server
 {
     public class JamServer: IDisposable
     {
+        private List<JamServerConnection> connections = new List<JamServerConnection>();
         private AutoResetEvent acceptCompleted = new AutoResetEvent(false);
+
+        private X509Certificate serverCertificate;
 
         private bool alive;
 
-        private List<JamServerConnection> connections = new List<JamServerConnection>();
-
-        public void Start(int port)
+        public void Start(int port, string certificate)
         {
+            serverCertificate = X509Certificate.CreateFromCertFile(certificate);
             alive = true;
 
-            Thread listeningThread = new Thread(() => { Listen(port); });
-            listeningThread.Start();
+            Task.Run(() => { Listen(port); });
         }
 
         public void Dispose()
@@ -32,27 +35,25 @@ namespace JamLib.Server
 
         public void Listen(int port)
         {
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress address = host.AddressList[0];
-            IPEndPoint endPoint = new IPEndPoint(address, port);
-
-            Socket socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            socket.Bind(endPoint);
-            socket.Listen(100);
+            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
 
             while (alive)
             {
-                socket.BeginAccept(new AsyncCallback(AcceptCallback), socket);
+                TcpClient client = listener.AcceptTcpClient();
+                SslStream stream = new SslStream(client.GetStream(), false);
+
+                stream.BeginAuthenticateAsServer(serverCertificate, AcceptCallback, stream);
                 acceptCompleted.WaitOne();
             }
         }
 
         public void AcceptCallback(IAsyncResult result)
         {
-            Socket socket = result.AsyncState as Socket;
-            Socket connectee = socket.EndAccept(result);
+            SslStream stream = result.AsyncState as SslStream;
+            stream.EndAuthenticateAsServer(result);
 
-            JamServerConnection connection = new JamServerConnection(connectee);
+            JamServerConnection connection = new JamServerConnection(stream);
             connections.Add(connection);
 
             acceptCompleted.Set();
