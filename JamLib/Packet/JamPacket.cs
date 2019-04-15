@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace JamLib
+namespace JamLib.Packet
 {
     public class JamPacket
     {
@@ -29,14 +29,14 @@ namespace JamLib
 
         public JamPacket() { }
 
-        public JamPacket(Guid recipient, Guid sender, bool encrypted, byte[] data)
+        public JamPacket(Guid recipient, Guid sender, int dataType, byte[] data)
         {
             Header = new JamPacketHeader()
             {
                 Receipient = recipient,
                 Sender = sender,
                 SendTimeUTC = DateTime.UtcNow,
-                DataEncrypted = encrypted,
+                DataType = dataType,
                 DataLength = data.Length
             };
 

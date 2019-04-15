@@ -86,8 +86,13 @@
     <Compile Include="Domain\Cryptography\SHA256HashFactory.cs" />
     <Compile Include="Domain\Cryptography\IHashFactory.cs" />
     <Compile Include="Domain\JamAccount.cs" />
-    <Compile Include="JamPacket.cs" />
-    <Compile Include="JamPacketHeader.cs" />
+    <Compile Include="Domain\StructMarshal.cs" />
+    <Compile Include="Packet\Data\LoginResponse.cs" />
+    <Compile Include="Packet\JamPacket.cs" />
+    <Compile Include="Packet\JamPacketHeader.cs" />
+    <Compile Include="Packet\IJamPacketInterpreter.cs" />
+    <Compile Include="Packet\Data\LoginRequest.cs" />
+    <Compile Include="Server\JamPacketRouter.cs" />
     <Compile Include="Server\JamServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\JamServerConnection.cs" />

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using JamLib.Packet;
+using JamLib.Packet.Data;
+using System;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +15,12 @@ namespace JamLib.Client
 
         private SslStream stream;
         private bool alive;
+        
+        protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            //This basic method simply returns true, method should be overriden if certificate validation implementation is required.
+            return true;
+        }
 
         public void Connect(string ip, int port, int timeout)
         {
@@ -40,16 +44,22 @@ namespace JamLib.Client
             connectionCompleted.Set();
         }
 
-        protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            //This basic method simply returns true, method should be overriden if certificate validation implementation is required.
-            return true;
-        }
-
         public void Dispose()
         {
             alive = false;
             stream.Close();
+        }
+
+        public void Login(string username, string password)
+        {
+            LoginRequest loginRequest = new LoginRequest()
+            {
+                Username = username,
+                Password = password
+            };
+
+            JamPacket packet = new JamPacket(Guid.Empty, Guid.Empty, LoginRequest.DATA_TYPE, loginRequest.GetBytes());
+            Send(packet);
         }
 
         public int Send(JamPacket packet)
@@ -64,7 +74,7 @@ namespace JamLib.Client
             return sentBytes;
         }
 
-        public void Listen()
+        private void Listen()
         {
             while (alive)
             {

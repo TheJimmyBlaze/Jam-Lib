@@ -1,4 +1,6 @@
-﻿using System;
+﻿using JamLib.Domain.Cryptography;
+using JamLib.Packet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -17,8 +19,37 @@ namespace JamLib.Server
         private AutoResetEvent acceptCompleted = new AutoResetEvent(false);
 
         private X509Certificate serverCertificate;
+        public readonly IHashFactory HashFactory;
 
         private bool alive;
+
+        public readonly IJamPacketInterpreter Interpreter;
+        public readonly JamPacketRouter Router;
+
+        public JamServer(IHashFactory hashFactory, IJamPacketInterpreter interpreter, JamPacketRouter router = null)
+        {
+            HashFactory = hashFactory;
+            Interpreter = interpreter;
+
+            Router = router;
+            if (Router == null)
+                Router = new JamPacketRouter();
+        }
+
+        public JamServerConnection GetConnection(Guid accountID)
+        {
+            return connections.SingleOrDefault(x => x.Account.AccountID == accountID);
+        }
+
+        public void AddConnection(JamServerConnection connection)
+        {
+            connections.Add(connection);
+        }
+
+        public void DeleteConnection(Guid accountID)
+        {
+            connections.Remove(GetConnection(accountID));
+        }
 
         public void Start(int port, string certificate)
         {
@@ -33,7 +64,7 @@ namespace JamLib.Server
             alive = false;
         }
 
-        public void Listen(int port)
+        private void Listen(int port)
         {
             TcpListener listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
@@ -48,13 +79,12 @@ namespace JamLib.Server
             }
         }
 
-        public void AcceptCallback(IAsyncResult result)
+        private void AcceptCallback(IAsyncResult result)
         {
             SslStream stream = result.AsyncState as SslStream;
             stream.EndAuthenticateAsServer(result);
 
-            JamServerConnection connection = new JamServerConnection(stream);
-            connections.Add(connection);
+            JamServerConnection connection = new JamServerConnection(stream, this);
 
             acceptCompleted.Set();
         }
