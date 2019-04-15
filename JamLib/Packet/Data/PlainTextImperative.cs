@@ -7,16 +7,15 @@ using System.Threading.Tasks;
 
 namespace JamLib.Packet.Data
 {
-    public struct LoginRequest
+    public struct PlainTextImperative
     {
-        public const int DATA_TYPE = 10;
-        
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public const int DATA_TYPE = 1;
 
-        public LoginRequest(byte[] rawBytes)
+        public string Text { get; set; }
+
+        public PlainTextImperative(byte[] rawBytes)
         {
-            this = StructMarshal.GetStructFromBytes<LoginRequest>(rawBytes);
+            this = StructMarshal.GetStructFromBytes<PlainTextImperative>(rawBytes);
         }
 
         public byte[] GetBytes()

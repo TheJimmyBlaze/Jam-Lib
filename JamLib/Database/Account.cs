@@ -19,7 +19,6 @@ namespace JamLib.Database
         {
             this.AccountAccessCodes = new HashSet<AccountAccessCode>();
             this.AccountPermissionAssociations = new HashSet<AccountPermissionAssociation>();
-            this.JamAddresses = new HashSet<JamAddress>();
         }
     
         public System.Guid AccountID { get; set; }
@@ -31,7 +30,5 @@ namespace JamLib.Database
         public virtual ICollection<AccountAccessCode> AccountAccessCodes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AccountPermissionAssociation> AccountPermissionAssociations { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<JamAddress> JamAddresses { get; set; }
     }
 }

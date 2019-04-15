@@ -1,4 +1,5 @@
-﻿using JamLib.Domain;
+﻿using JamLib.Database;
+using JamLib.Domain;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
@@ -15,7 +16,7 @@ namespace JamLib.Server
         private readonly SslStream stream;
         private bool alive;
 
-        public JamAccount Account { get; private set; }
+        public Account Account { get; private set; }
 
         public JamServerConnection(SslStream stream, JamServer server)
         {
@@ -35,23 +36,26 @@ namespace JamLib.Server
 
         public void Login(JamPacket requestPacket)
         {
+            if (requestPacket.Header.DataType != LoginRequest.DATA_TYPE)
+                return;
+
             LoginRequest request = new LoginRequest(requestPacket.Data);
 
             LoginResponse response;
             try
             {
-                Account = JamAccount.Authenticate(request.Username, request.Password, Server.HashFactory);
+                Account = JamAccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
                 response = new LoginResponse()
                 {
                     Result = LoginResponse.LoginResult.Good,
                     Account = Account
                 };
             }
-            catch (JamAccount.InvalidUsernameException)
+            catch (JamAccountFactory.InvalidUsernameException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadUsername };
             }
-            catch (JamAccount.InvalidAccessCodeException)
+            catch (JamAccountFactory.InvalidAccessCodeException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadPassword };
             }

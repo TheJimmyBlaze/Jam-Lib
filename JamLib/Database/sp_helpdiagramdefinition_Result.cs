@@ -10,17 +10,10 @@
 namespace JamLib.Database
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class JamAddress
+    public partial class sp_helpdiagramdefinition_Result
     {
-        public System.Guid JamAddressID { get; set; }
-        public System.DateTime LastUpdateUTC { get; set; }
-        public System.Guid AccountID { get; set; }
-        public string AddressName { get; set; }
-        public System.Guid SoftwareIdentifier { get; set; }
-        public bool AdvertiseAsPublic { get; set; }
-    
-        public virtual Account Account { get; set; }
+        public Nullable<int> version { get; set; }
+        public byte[] definition { get; set; }
     }
 }

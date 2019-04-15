@@ -19,7 +19,7 @@ namespace JamLib.Client
 
         public readonly IJamPacketInterpreter Interperter;
 
-        public JamAccount Account;
+        public JamAccountFactory Account;
 
         public JamClient(IJamPacketInterpreter interpreter)
         {

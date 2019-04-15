@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.438
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JamLib", "JamLib\JamLib.csproj", "{5AD42585-0F07-4F6C-A03B-52E4F3869279}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleServer", "ExampleServer\ExampleServer.csproj", "{EC5F6301-7136-4D3A-B85C-29644762D805}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleClient", "ExampleClient\ExampleClient.csproj", "{11F843AD-FFE3-4CC5-96EB-C0C123F100CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{5AD42585-0F07-4F6C-A03B-52E4F3869279}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AD42585-0F07-4F6C-A03B-52E4F3869279}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AD42585-0F07-4F6C-A03B-52E4F3869279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC5F6301-7136-4D3A-B85C-29644762D805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC5F6301-7136-4D3A-B85C-29644762D805}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC5F6301-7136-4D3A-B85C-29644762D805}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC5F6301-7136-4D3A-B85C-29644762D805}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11F843AD-FFE3-4CC5-96EB-C0C123F100CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11F843AD-FFE3-4CC5-96EB-C0C123F100CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11F843AD-FFE3-4CC5-96EB-C0C123F100CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11F843AD-FFE3-4CC5-96EB-C0C123F100CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

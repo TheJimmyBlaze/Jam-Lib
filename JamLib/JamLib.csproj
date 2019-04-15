@@ -62,9 +62,6 @@
     <Compile Include="Database\AccountPermissionAssociation.cs">
       <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Database\JamAddress.cs">
-      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="Database\JamServerEntityDataModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -83,11 +80,18 @@
     <Compile Include="Database\Permission.cs">
       <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Database\sp_helpdiagramdefinition_Result.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\sp_helpdiagrams_Result.cs">
+      <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Domain\Cryptography\SHA256HashFactory.cs" />
     <Compile Include="Domain\Cryptography\IHashFactory.cs" />
-    <Compile Include="Domain\JamAccount.cs" />
+    <Compile Include="Domain\JamAccountFactory.cs" />
     <Compile Include="Domain\StructMarshal.cs" />
     <Compile Include="Packet\Data\LoginResponse.cs" />
+    <Compile Include="Packet\Data\PlainTextImperative.cs" />
     <Compile Include="Packet\JamPacket.cs" />
     <Compile Include="Packet\JamPacketHeader.cs" />
     <Compile Include="Packet\IJamPacketInterpreter.cs" />

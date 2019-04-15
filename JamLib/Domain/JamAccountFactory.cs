@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace JamLib.Domain
 {
-    public class JamAccount: Account
+    public class JamAccountFactory
     {
         public class InvalidUsernameException: Exception
         {
@@ -20,27 +20,36 @@ namespace JamLib.Domain
             public InvalidAccessCodeException() { }
         }
 
-        public JamAccount(string username, string password, IHashFactory hashFactory, bool approved = false)
+        public static Account Generate(string username, string password, IHashFactory hashFactory, bool approved = false)
         {
-            AccountID = Guid.NewGuid();
-            LastUpdateUTC = DateTime.UtcNow;
+            Account account = new Account()
+            {
+                AccountID = Guid.NewGuid(),
+                LastUpdateUTC = DateTime.UtcNow,
 
-            Username = username;
-            Approved = approved;
+                Username = username,
+                Approved = approved
+            };
 
             AccountAccessCode accessCode = new AccountAccessCode()
             {
                 AccountAccessCodeID = Guid.NewGuid(),
                 LastUpdateUTC = DateTime.UtcNow,
 
-                AccountID = AccountID,
+                AccountID = account.AccountID,
                 AccessCode = hashFactory.BuildHash(password)
             };
 
-            AccountAccessCodes.Add(accessCode);
+            account.AccountAccessCodes.Add(accessCode);
+
+            JamServerEntities dbContext = new JamServerEntities();
+            dbContext.Accounts.Add(account);
+            dbContext.SaveChanges();
+
+            return account;
         }
 
-        public static JamAccount Authenticate(string username, string password, IHashFactory hashFactory)
+        public static Account Authenticate(string username, string password, IHashFactory hashFactory)
         {
             JamServerEntities context = new JamServerEntities();
             Account account = context.Accounts.SingleOrDefault(x => x.Username == username);
@@ -51,7 +60,7 @@ namespace JamLib.Domain
 
                 if (accessCode != null && hashFactory.ValidateString(password, accessCode.AccessCode))
                 {
-                    return (JamAccount)account;
+                    return account;
                 }
                 else throw new InvalidAccessCodeException();
             }

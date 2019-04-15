@@ -32,17 +32,6 @@
           <Property Name="AccountID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="PermissionID" Type="uniqueidentifier" Nullable="false" />
         </EntityType>
-        <EntityType Name="JamAddress">
-          <Key>
-            <PropertyRef Name="JamAddressID" />
-          </Key>
-          <Property Name="JamAddressID" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="LastUpdateUTC" Type="datetime" Nullable="false" />
-          <Property Name="AccountID" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="AddressName" Type="varchar" MaxLength="32" Nullable="false" />
-          <Property Name="SoftwareIdentifier" Type="uniqueidentifier" Nullable="false" />
-          <Property Name="AdvertiseAsPublic" Type="bit" Nullable="false" />
-        </EntityType>
         <EntityType Name="Permission">
           <Key>
             <PropertyRef Name="PermissionID" />
@@ -89,18 +78,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="jaFKAccountID">
-          <End Role="Account" Type="Self.Account" Multiplicity="1" />
-          <End Role="JamAddress" Type="Self.JamAddress" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Account">
-              <PropertyRef Name="AccountID" />
-            </Principal>
-            <Dependent Role="JamAddress">
-              <PropertyRef Name="AccountID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="permFKParentPermissionID">
           <End Role="Permission" Type="Self.Permission" Multiplicity="1" />
           <End Role="Permission1" Type="Self.Permission" Multiplicity="*" />
@@ -117,7 +94,6 @@
           <EntitySet Name="Account" EntityType="Self.Account" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AccountAccessCode" EntityType="Self.AccountAccessCode" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AccountPermissionAssociation" EntityType="Self.AccountPermissionAssociation" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="JamAddress" EntityType="Self.JamAddress" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Permission" EntityType="Self.Permission" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="aacFKAccountID" Association="Self.aacFKAccountID">
             <End Role="Account" EntitySet="Account" />
@@ -130,10 +106,6 @@
           <AssociationSet Name="FapaKPermissionID" Association="Self.FapaKPermissionID">
             <End Role="Permission" EntitySet="Permission" />
             <End Role="AccountPermissionAssociation" EntitySet="AccountPermissionAssociation" />
-          </AssociationSet>
-          <AssociationSet Name="jaFKAccountID" Association="Self.jaFKAccountID">
-            <End Role="Account" EntitySet="Account" />
-            <End Role="JamAddress" EntitySet="JamAddress" />
           </AssociationSet>
           <AssociationSet Name="permFKParentPermissionID" Association="Self.permFKParentPermissionID">
             <End Role="Permission" EntitySet="Permission" />
@@ -154,18 +126,6 @@
           <Property Name="PermissionID" Type="Guid" Nullable="false" />
           <NavigationProperty Name="Permission" Relationship="Self.FapaKPermissionID" FromRole="AccountPermissionAssociation" ToRole="Permission" />
           <NavigationProperty Name="Account" Relationship="JamServerModel.apaFKAccountID" FromRole="AccountPermissionAssociation" ToRole="Account" />
-        </EntityType>
-        <EntityType Name="JamAddress">
-          <Key>
-            <PropertyRef Name="JamAddressID" />
-          </Key>
-          <Property Name="JamAddressID" Type="Guid" Nullable="false" />
-          <Property Name="LastUpdateUTC" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="AccountID" Type="Guid" Nullable="false" />
-          <Property Name="AddressName" Type="String" MaxLength="32" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="SoftwareIdentifier" Type="Guid" Nullable="false" />
-          <Property Name="AdvertiseAsPublic" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="Account" Relationship="JamServerModel.jaFKAccountID" FromRole="JamAddress" ToRole="Account" />
         </EntityType>
         <EntityType Name="Permission">
           <Key>
@@ -206,7 +166,6 @@
         </Association>
         <EntityContainer Name="JamServerEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="AccountPermissionAssociations" EntityType="Self.AccountPermissionAssociation" />
-          <EntitySet Name="JamAddresses" EntityType="Self.JamAddress" />
           <EntitySet Name="Permissions" EntityType="Self.Permission" />
           <AssociationSet Name="FapaKPermissionID" Association="Self.FapaKPermissionID">
             <End Role="Permission" EntitySet="Permissions" />
@@ -226,10 +185,36 @@
             <End Role="Account" EntitySet="Accounts" />
             <End Role="AccountPermissionAssociation" EntitySet="AccountPermissionAssociations" />
           </AssociationSet>
-          <AssociationSet Name="jaFKAccountID" Association="JamServerModel.jaFKAccountID">
-            <End Role="Account" EntitySet="Accounts" />
-            <End Role="JamAddress" EntitySet="JamAddresses" />
-          </AssociationSet>
+          <FunctionImport Name="sp_alterdiagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="version" Mode="In" Type="Int32" />
+            <Parameter Name="definition" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="sp_creatediagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="version" Mode="In" Type="Int32" />
+            <Parameter Name="definition" Mode="In" Type="Binary" />
+          </FunctionImport>
+          <FunctionImport Name="sp_dropdiagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_helpdiagramdefinition" ReturnType="Collection(JamServerModel.sp_helpdiagramdefinition_Result)">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_helpdiagrams" ReturnType="Collection(JamServerModel.sp_helpdiagrams_Result)">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="sp_renamediagram">
+            <Parameter Name="diagramname" Mode="In" Type="String" />
+            <Parameter Name="owner_id" Mode="In" Type="Int32" />
+            <Parameter Name="new_diagramname" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="sp_upgraddiagrams" />
           </EntityContainer>
         <EntityType Name="AccountAccessCode">
           <Key>
@@ -251,7 +236,6 @@
           <Property Name="Approved" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="AccountAccessCodes" Relationship="JamServerModel.aacFKAccountID" FromRole="Account" ToRole="AccountAccessCode" />
           <NavigationProperty Name="AccountPermissionAssociations" Relationship="JamServerModel.apaFKAccountID" FromRole="Account" ToRole="AccountPermissionAssociation" />
-          <NavigationProperty Name="JamAddresses" Relationship="JamServerModel.jaFKAccountID" FromRole="Account" ToRole="JamAddress" />
         </EntityType>
         <Association Name="aacFKAccountID">
           <End Type="JamServerModel.Account" Role="Account" Multiplicity="1" />
@@ -277,18 +261,17 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="jaFKAccountID">
-          <End Type="JamServerModel.Account" Role="Account" Multiplicity="1" />
-          <End Type="JamServerModel.JamAddress" Role="JamAddress" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Account">
-              <PropertyRef Name="AccountID" />
-            </Principal>
-            <Dependent Role="JamAddress">
-              <PropertyRef Name="AccountID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
+        <ComplexType Name="sp_helpdiagramdefinition_Result">
+          <Property Type="Int32" Name="version" Nullable="true" />
+          <Property Type="Binary" Name="definition" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="sp_helpdiagrams_Result">
+          <Property Type="String" Name="Database" Nullable="true" MaxLength="128" />
+          <Property Type="String" Name="Name" Nullable="false" MaxLength="128" />
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="Owner" Nullable="true" MaxLength="128" />
+          <Property Type="Int32" Name="OwnerID" Nullable="false" />
+        </ComplexType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -302,18 +285,6 @@
                 <ScalarProperty Name="LastUpdateUTC" ColumnName="LastUpdateUTC" />
                 <ScalarProperty Name="AccountID" ColumnName="AccountID" />
                 <ScalarProperty Name="PermissionID" ColumnName="PermissionID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="JamAddresses">
-            <EntityTypeMapping TypeName="JamServerModel.JamAddress">
-              <MappingFragment StoreEntitySet="JamAddress">
-                <ScalarProperty Name="JamAddressID" ColumnName="JamAddressID" />
-                <ScalarProperty Name="LastUpdateUTC" ColumnName="LastUpdateUTC" />
-                <ScalarProperty Name="AccountID" ColumnName="AccountID" />
-                <ScalarProperty Name="AddressName" ColumnName="AddressName" />
-                <ScalarProperty Name="SoftwareIdentifier" ColumnName="SoftwareIdentifier" />
-                <ScalarProperty Name="AdvertiseAsPublic" ColumnName="AdvertiseAsPublic" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

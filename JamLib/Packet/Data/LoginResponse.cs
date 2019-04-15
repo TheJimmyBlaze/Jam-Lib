@@ -1,4 +1,5 @@
-﻿using JamLib.Domain;
+﻿using JamLib.Database;
+using JamLib.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,12 @@ namespace JamLib.Packet.Data
 {
     public struct LoginResponse
     {
-        public const int DATA_TYPE = 2;
+        public const int DATA_TYPE = 11;
 
         public enum LoginResult { Good, BadUsername, BadPassword };
 
         public LoginResult Result { get; set; }
-        public JamAccount Account { get; set; }
+        public Account Account { get; set; }
 
         public LoginResponse(byte[] rawBytes)
         {
