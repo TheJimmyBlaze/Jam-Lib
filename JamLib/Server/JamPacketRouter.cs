@@ -34,6 +34,6 @@ namespace JamLib.Server
             }            
         }
 
-        private virtual void HandleOfflineReceipient(JamPacket packet) { }
+        protected virtual void HandleOfflineReceipient(JamPacket packet) { }
     }
 }

@@ -1,4 +1,5 @@
-﻿using JamLib.Packet;
+﻿using JamLib.Domain;
+using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
 using System.Net.Security;
@@ -15,6 +16,15 @@ namespace JamLib.Client
 
         private SslStream stream;
         private bool alive;
+
+        public readonly IJamPacketInterpreter Interperter;
+
+        public JamAccount Account;
+
+        public JamClient(IJamPacketInterpreter interpreter)
+        {
+            Interperter = interpreter;
+        }
         
         protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
@@ -79,7 +89,7 @@ namespace JamLib.Client
             while (alive)
             {
                 JamPacket packet = JamPacket.Receive(stream);
-                Console.WriteLine(packet);
+                Interperter.Interpret(packet);
             }
         }
     }
