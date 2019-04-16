@@ -50,7 +50,8 @@ namespace ExampleClient.View
         {
             get
             {
-                return address != string.Empty &&
+                return !WorkInProgress &&
+                        address != string.Empty &&
                         port > 0 &&
                         Username != string.Empty &&
                         PasswordBox.Password != string.Empty;
@@ -121,6 +122,7 @@ namespace ExampleClient.View
         {
             DisplayInvalidLoginMessage = false;
             AwaitingLoginResponse = true;
+            Cursor = Cursors.Wait;
 
             //TODO: Send login request.
         }
@@ -139,6 +141,8 @@ namespace ExampleClient.View
             }
 
             AwaitingLoginResponse = false;
+            if (!WorkInProgress)
+                Cursor = Cursors.Arrow;
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

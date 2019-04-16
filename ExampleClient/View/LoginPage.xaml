@@ -90,8 +90,7 @@
                                 <RowDefinition Height="32"/>
                                 <RowDefinition Height="32"/>
                                 <RowDefinition Height="18"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="32"/>
                             </Grid.RowDefinitions>
 
                             <Grid.ColumnDefinitions>
@@ -144,21 +143,11 @@
                             <Button
                                 Grid.Row="3"
                                 Grid.ColumnSpan="2"
-                                Height="28"
                                 Margin="2"
                                 Click="Login"
-                                IsEnabled="{Binding LoginEnabled}"
-                                Visibility="{Binding WorkInProgress, Converter={StaticResource CollapseWhenTrue}}">
+                                IsEnabled="{Binding LoginEnabled}">
                                 Login
                             </Button>
-
-                            <ProgressBar
-                                Grid.Row="4"
-                                Grid.ColumnSpan="2"
-                                Height="28"
-                                Margin="2"
-                                IsIndeterminate="True"
-                                Visibility="{Binding WorkInProgress, Converter={StaticResource CollapseWhenFalse}}"/>
                         </Grid>
                     </GroupBox>
                 </StackPanel>
@@ -170,8 +159,7 @@
                     <TextBlock
                         Width="192"
                         FontSize="10"
-                        TextWrapping="Wrap"
-                        TextAlignment="Right">                     
+                        TextAlignment="Center">                     
                         <Hyperlink 
                             NavigateUri="https://github.com/TheJimmyBlaze/JamLib"
                             RequestNavigate="Hyperlink_RequestNavigate">
