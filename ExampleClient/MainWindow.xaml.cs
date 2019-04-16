@@ -1,4 +1,8 @@
-﻿using System;
+﻿using ExampleClient.Network;
+using ExampleClient.View;
+using JamLib.Client;
+using JamLib.Packet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +24,22 @@ namespace ExampleClient
     /// </summary>
     public partial class MainWindow : Window
     {
+        public JamClient Client { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            IJamPacketInterpreter interpreter = new ChatClientInterpreter();
+            Client = new JamClient(interpreter);
+
+            LoginPage loginPage = new LoginPage();
+            Navigate(loginPage);
+        }
+
+        public void Navigate(Page page)
+        {
+            ViewFrame.Navigate(page);
         }
     }
 }

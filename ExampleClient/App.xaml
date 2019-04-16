@@ -2,8 +2,13 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:ExampleClient"
+             xmlns:converter="clr-namespace:ExampleClient.Converter"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
+        <converter:CollapseWhenFalseConverter x:Key="CollapseWhenFalse"/>
+        <converter:CollapseWhenTrueConverter x:Key="CollapseWhenTrue"/>
+        <converter:NotConverter x:Key="NotConverter"/>
+
     </Application.Resources>
 </Application>

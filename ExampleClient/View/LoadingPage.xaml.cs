@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ExampleClient.Page
+namespace ExampleClient.View
 {
     /// <summary>
-    /// Interaction logic for LoginPage.xaml
+    /// Interaction logic for LoadingPage.xaml
     /// </summary>
-    public partial class LoginPage : Page
+    public partial class LoadingPage : Page
     {
-        public LoginPage()
+        public LoadingPage()
         {
             InitializeComponent();
         }
