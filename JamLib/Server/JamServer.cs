@@ -22,7 +22,7 @@ namespace JamLib.Server
         public readonly IHashFactory HashFactory;
 
         private bool alive;
-
+        
         public readonly IJamPacketInterpreter Interpreter;
         public readonly JamPacketRouter Router;
 

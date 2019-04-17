@@ -166,6 +166,7 @@ namespace ExampleClient.View
 
         public void HandleLoginResponse(JamPacket packet)
         {
+            MainWindow main = App.Current.MainWindow as MainWindow;
             LoginResponse response = new LoginResponse(packet.Data);
 
             if (response.Result == LoginResponse.LoginResult.Good)
@@ -174,6 +175,7 @@ namespace ExampleClient.View
             }
             else
             {
+                main.Client.Dispose();
                 LoginMessageText = INVALID_CREDENTIALS;
             }
 

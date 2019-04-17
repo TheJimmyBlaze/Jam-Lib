@@ -15,23 +15,18 @@ namespace JamLib.Server
 
             Guid recipient = packet.Header.Receipient;
             Guid sender = packet.Header.Sender;
-            
+
             if (recipient == Guid.Empty)
             {
-                if (sender == Guid.Empty)
-                    senderConnection.Login(packet);
-                else
-                    server.Interpreter.Interpret(packet);
+                senderConnection.InternalInterpreter.Interpret(packet);
+                return;
             }
-            else
-            {
-                JamServerConnection recipientConnection = server.GetConnection(recipient);
 
-                if (recipientConnection == null)
-                    HandleOfflineReceipient(packet);
-                else
-                    recipientConnection.Send(packet);
-            }            
+            JamServerConnection recipientConnection = server.GetConnection(recipient);
+            if (recipientConnection == null)
+                HandleOfflineReceipient(packet);
+            else
+                recipientConnection.Send(packet);   
         }
 
         protected virtual void HandleOfflineReceipient(JamPacket packet) { }

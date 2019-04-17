@@ -39,7 +39,7 @@ namespace JamLib.Packet
             {
                 Receipient = recipient,
                 Sender = sender,
-                SendTimeUTC = DateTime.UtcNow,
+                SendTimeUtc = DateTime.UtcNow,
                 DataType = dataType,
                 DataLength = data.Length
             };

@@ -7,7 +7,7 @@ namespace JamLib.Packet
     {
         public Guid Receipient;
         public Guid Sender;
-        public DateTime SendTimeUTC;
+        public DateTime SendTimeUtc;
 
         public int DataType;
         public int DataLength;

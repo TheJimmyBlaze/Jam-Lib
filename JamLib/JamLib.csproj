@@ -96,11 +96,14 @@
     <Compile Include="Domain\Serialization\StructMarshal.cs" />
     <Compile Include="Domain\Serialization\Utf8JsonSerializer.cs" />
     <Compile Include="Packet\Data\LoginResponse.cs" />
+    <Compile Include="Packet\Data\PingRequest.cs" />
+    <Compile Include="Packet\Data\PingResponse.cs" />
     <Compile Include="Packet\Data\PlainTextImperative.cs" />
     <Compile Include="Packet\JamPacket.cs" />
     <Compile Include="Packet\JamPacketHeader.cs" />
     <Compile Include="Packet\IJamPacketInterpreter.cs" />
     <Compile Include="Packet\Data\LoginRequest.cs" />
+    <Compile Include="Server\InternalInterpreter.cs" />
     <Compile Include="Server\JamPacketRouter.cs" />
     <Compile Include="Server\JamServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

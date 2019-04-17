@@ -16,11 +16,14 @@ namespace JamLib.Server
         private readonly SslStream stream;
         private bool alive;
 
+        public InternalInterpreter InternalInterpreter;
+
         public Account Account { get; private set; }
 
         public JamServerConnection(SslStream stream, JamServer server)
         {
-            this.Server = server;
+            InternalInterpreter = new InternalInterpreter(this);
+            Server = server;
 
             this.stream = stream;
             alive = true;
@@ -34,12 +37,12 @@ namespace JamLib.Server
             stream.Close();
         }
 
-        public void Login(JamPacket requestPacket)
+        public void Login(JamPacket loginPacket)
         {
-            if (requestPacket.Header.DataType != LoginRequest.DATA_TYPE)
+            if (loginPacket.Header.DataType != LoginRequest.DATA_TYPE)
                 return;
 
-            LoginRequest request = new LoginRequest(requestPacket.Data);
+            LoginRequest request = new LoginRequest(loginPacket.Data);
 
             LoginResponse response;
             try
@@ -61,10 +64,27 @@ namespace JamLib.Server
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadPassword };
             }
 
-            JamPacket responsePacket = new JamPacket(Account.AccountID, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
 
             Server.AddConnection(this);
+        }
+
+        public void Ping(JamPacket pingPacket)
+        {
+            if (pingPacket.Header.DataType != PingRequest.DATA_TYPE)
+                return;
+
+            PingRequest request = new PingRequest(pingPacket.Data);
+
+            PingResponse response = new PingResponse()
+            {
+                PingTimeUtc = request.PingTimeUtc,
+                PongTimeUtc = DateTime.UtcNow
+            };
+
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, response.GetBytes());
+            Send(responsePacket);
         }
 
         public void Logout()
