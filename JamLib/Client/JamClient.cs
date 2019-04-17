@@ -1,4 +1,5 @@
-﻿using JamLib.Domain;
+﻿using JamLib.Database;
+using JamLib.Domain;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
@@ -19,8 +20,9 @@ namespace JamLib.Client
         private bool alive;
 
         public readonly IJamPacketInterpreter Interperter;
+        public readonly InternalClientInterpreter InternalInterpreter;
 
-        public JamAccountFactory Account;
+        public Account Account { get; private set; }
 
         public bool IsConnected
         {
@@ -30,6 +32,7 @@ namespace JamLib.Client
         public JamClient(IJamPacketInterpreter interpreter)
         {
             Interperter = interpreter;
+            InternalInterpreter = new InternalClientInterpreter(this);
         }
         
         protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -82,11 +85,32 @@ namespace JamLib.Client
             Send(packet);
         }
 
+        public void Ping(JamPacket pingPacket)
+        {
+            if (pingPacket.Header.DataType != PingRequest.DATA_TYPE)
+                return;
+
+            PingRequest request = new PingRequest(pingPacket.Data);
+
+            PingResponse response = new PingResponse()
+            {
+                PingTimeUtc = request.PingTimeUtc,
+                PongTimeUtc = DateTime.UtcNow
+            };
+
+            Guid accountID = Guid.Empty;
+            if (Account != null)
+                accountID = Account.AccountID;
+
+            JamPacket responsePacket = new JamPacket(pingPacket.Header.Sender, accountID, PingResponse.DATA_TYPE, response.GetBytes());
+            Send(responsePacket);
+        }
+
         public int Send(JamPacket packet)
         {
             int sentBytes = 0;
 
-            Task.Run(() => { sentBytes = packet.Send(stream); });
+            sentBytes = packet.Send(stream);
 
             while (sentBytes == 0)
                 Thread.Sleep(50);
@@ -99,7 +123,7 @@ namespace JamLib.Client
             while (alive)
             {
                 JamPacket packet = JamPacket.Receive(stream);
-                Interperter.Interpret(packet);
+                InternalInterpreter.Interpret(packet);
             }
         }
     }

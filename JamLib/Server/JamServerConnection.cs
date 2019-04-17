@@ -16,18 +16,21 @@ namespace JamLib.Server
         private readonly SslStream stream;
         private bool alive;
 
-        public InternalInterpreter InternalInterpreter;
+        public InternalServerInterpreter InternalInterpreter;
 
         public Account Account { get; private set; }
 
         public JamServerConnection(SslStream stream, JamServer server)
         {
-            InternalInterpreter = new InternalInterpreter(this);
+            const int DISCONNECT_POLL_FREQUENCY = 500;
+
+            InternalInterpreter = new InternalServerInterpreter(this);
             Server = server;
 
             this.stream = stream;
             alive = true;
-            
+
+            Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
             Task.Run(() => Listen());
         }
         
@@ -35,6 +38,9 @@ namespace JamLib.Server
         {
             alive = false;
             stream.Close();
+            
+            if (Account != null)
+                Server.DeleteConnection(Account.AccountID);
         }
 
         public void Login(JamPacket loginPacket)
@@ -47,27 +53,27 @@ namespace JamLib.Server
             LoginResponse response;
             try
             {
-                Account = JamAccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
+                Account = AccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
 
                 response = new LoginResponse()
                 {
                     Result = LoginResponse.LoginResult.Good,
                     Account = Account
                 };
+
+                Server.AddConnection(this);
             }
-            catch (JamAccountFactory.InvalidUsernameException)
+            catch (AccountFactory.InvalidUsernameException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadUsername };
             }
-            catch (JamAccountFactory.InvalidAccessCodeException)
+            catch (AccountFactory.InvalidAccessCodeException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadPassword };
             }
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
-
-            Server.AddConnection(this);
         }
 
         public void Ping(JamPacket pingPacket)
@@ -90,16 +96,13 @@ namespace JamLib.Server
         public void Logout()
         {
             Dispose();
-
-            if (Account != null)
-                Server.DeleteConnection(Account.AccountID);
         }
 
         public int Send(JamPacket packet)
         {
             int sentBytes = 0;
 
-            Task.Run(() => { sentBytes = packet.Send(stream); });
+            sentBytes = packet.Send(stream);
 
             while (sentBytes == 0)
                 Thread.Sleep(50);
@@ -113,6 +116,29 @@ namespace JamLib.Server
             {
                 JamPacket packet = JamPacket.Receive(stream);
                 Server.Router.Route(packet, this);
+            }
+        }
+
+        private void PollConnection(int pollFrequency)
+        {
+            while (alive)
+            {
+                Thread.Sleep(pollFrequency);
+                
+                try
+                {
+                    PingRequest pingRequest = new PingRequest()
+                    {
+                        PingTimeUtc = DateTime.UtcNow
+                    };
+
+                    JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
+                    Send(pingPacket);
+                }
+                catch (System.IO.IOException)
+                {
+                    Dispose();
+                }
             }
         }
     }

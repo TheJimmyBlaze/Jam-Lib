@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace JamLib.Domain
 {
-    public class JamAccountFactory
+    public class AccountFactory
     {
         public class InvalidUsernameException: Exception
         {

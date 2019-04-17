@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JamLib.Server
+namespace JamLib.Client
 {
-    public class InternalInterpreter : IJamPacketInterpreter
+    public class InternalClientInterpreter : IJamPacketInterpreter
     {
-        private readonly JamServerConnection client;
+        private readonly JamClient client;
 
-        public InternalInterpreter(JamServerConnection client)
+        public InternalClientInterpreter(JamClient client)
         {
             this.client = client;
         }
@@ -21,17 +21,11 @@ namespace JamLib.Server
         {
             switch (packet.Header.DataType)
             {
-                case LoginRequest.DATA_TYPE:
-                    client.Login(packet);
-                    break;
                 case PingRequest.DATA_TYPE:
                     client.Ping(packet);
                     break;
-                case PlainTextImperative.DATA_TYPE:
-                    //TODO: do something?
-                    break;
                 default:
-                    client.Server.Interpreter.Interpret(packet);
+                    client.Interperter.Interpret(packet);
                     break;
             }
         }

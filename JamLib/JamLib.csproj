@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\InternalClientInterpreter.cs" />
     <Compile Include="Client\JamClient.cs" />
     <Compile Include="Database\Account.cs">
       <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
@@ -92,7 +93,7 @@
     </Compile>
     <Compile Include="Domain\Cryptography\Sha256HashFactory.cs" />
     <Compile Include="Domain\Cryptography\IHashFactory.cs" />
-    <Compile Include="Domain\JamAccountFactory.cs" />
+    <Compile Include="Domain\AccountFactory.cs" />
     <Compile Include="Domain\Serialization\StructMarshal.cs" />
     <Compile Include="Domain\Serialization\Utf8JsonSerializer.cs" />
     <Compile Include="Packet\Data\LoginResponse.cs" />
@@ -103,7 +104,7 @@
     <Compile Include="Packet\JamPacketHeader.cs" />
     <Compile Include="Packet\IJamPacketInterpreter.cs" />
     <Compile Include="Packet\Data\LoginRequest.cs" />
-    <Compile Include="Server\InternalInterpreter.cs" />
+    <Compile Include="Server\InternalServerInterpreter.cs" />
     <Compile Include="Server\JamPacketRouter.cs" />
     <Compile Include="Server\JamServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
