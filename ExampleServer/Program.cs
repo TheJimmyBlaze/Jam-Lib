@@ -20,6 +20,7 @@ namespace ExampleServer
 
         private static int port = int.MinValue;
         private static string certificatePath = string.Empty;
+        private static string certificatePassword = string.Empty;
 
         private static readonly ManualResetEvent serverExiting = new ManualResetEvent(false);
 
@@ -32,7 +33,7 @@ namespace ExampleServer
             IJamPacketInterpreter interpreter = new ChatServerInterpreter();
 
             Server = new JamServer(hashFactory, interpreter);
-            Server.Start(port, certificatePath);
+            Server.Start(port, certificatePath, certificatePassword);
 
             serverExiting.WaitOne();
         }
@@ -41,7 +42,7 @@ namespace ExampleServer
         {
             const string USAGE_EXAMPLE = "Usage: ExampleServer <port number as integer> <certificate path as string>";
 
-            if (args.Length < 2)
+            if (args.Length < 3)
             {
                 Console.Error.WriteLine("ERROR: Incorrect number of arguments. {0}", USAGE_EXAMPLE);
                 return false;
@@ -60,6 +61,8 @@ namespace ExampleServer
                 return false;
             }
 
+            certificatePassword = args[2];
+
             return true;
         }
 
@@ -69,7 +72,7 @@ namespace ExampleServer
             const string PEPPER_STRING = "This is a simple sample peper, come up with something better than this.";
 
             byte[] pepperBytes = Encoding.ASCII.GetBytes(PEPPER_STRING);
-            SHA256HashFactory hashFactory = new SHA256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
+            Sha256HashFactory hashFactory = new Sha256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
 
             return hashFactory;
         }

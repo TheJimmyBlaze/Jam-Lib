@@ -17,7 +17,7 @@
         <Border
             Background="WhiteSmoke"
             Padding="8, 16"
-            HorizontalAlignment="Left"
+            HorizontalAlignment="Right"
             VerticalAlignment="Stretch">
 
             <Border.Effect>
@@ -136,9 +136,8 @@
                                 HorizontalContentAlignment="Center"
                                 Padding="0"
                                 Foreground="Red"
-                                Visibility="{Binding DisplayInvalidLoginMessage, Converter={StaticResource CollapseWhenFalse}}">
-                                Invalid username or password
-                            </Label>
+                                Visibility="{Binding DisplayLoginMessage, Converter={StaticResource CollapseWhenFalse}}"
+                                Content="{Binding LoginMessageText}"/>
 
                             <Button
                                 Grid.Row="3"
@@ -161,6 +160,7 @@
                         FontSize="10"
                         TextAlignment="Center">                     
                         <Hyperlink 
+                            Foreground="LightGray"
                             NavigateUri="https://github.com/TheJimmyBlaze/JamLib"
                             RequestNavigate="Hyperlink_RequestNavigate">
                             www.github.com/TheJimmyBlaze/JamLib

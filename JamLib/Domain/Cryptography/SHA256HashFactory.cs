@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace JamLib.Domain.Cryptography
 {
-    public class SHA256HashFactory : IHashFactory
+    public class Sha256HashFactory : IHashFactory
     {
         private struct MetaData
         {
@@ -48,7 +48,7 @@ namespace JamLib.Domain.Cryptography
         private readonly byte[] pepper;
         private readonly int millisecondsToSpendHashing;
 
-        public SHA256HashFactory(int millisecondsToSpendHashing, byte[] pepper)
+        public Sha256HashFactory(int millisecondsToSpendHashing, byte[] pepper)
         {
             this.pepper = pepper;
             this.millisecondsToSpendHashing = millisecondsToSpendHashing;

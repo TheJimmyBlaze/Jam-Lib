@@ -45,6 +45,7 @@ namespace JamLib.Server
             try
             {
                 Account = JamAccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
+
                 response = new LoginResponse()
                 {
                     Result = LoginResponse.LoginResult.Good,

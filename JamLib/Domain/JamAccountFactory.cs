@@ -52,6 +52,7 @@ namespace JamLib.Domain
         public static Account Authenticate(string username, string password, IHashFactory hashFactory)
         {
             JamServerEntities context = new JamServerEntities();
+            context.Configuration.LazyLoadingEnabled = false;
             Account account = context.Accounts.SingleOrDefault(x => x.Username == username);
 
             if (account != null)

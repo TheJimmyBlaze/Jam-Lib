@@ -1,4 +1,5 @@
 ﻿using JamLib.Domain;
+using JamLib.Domain.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,12 @@ namespace JamLib.Packet.Data
 
         public PlainTextImperative(byte[] rawBytes)
         {
-            this = StructMarshal.GetStructFromBytes<PlainTextImperative>(rawBytes);
+            this = Utf8JsonSerializer.GetStructFromBytes<PlainTextImperative>(rawBytes);
         }
 
         public byte[] GetBytes()
         {
-            return StructMarshal.GetBytesFromStruct(this);
+            return Utf8JsonSerializer.GetBytesFromStruct(this);
         }
     }
 }

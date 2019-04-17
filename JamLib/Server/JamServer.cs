@@ -51,9 +51,9 @@ namespace JamLib.Server
             connections.Remove(GetConnection(accountID));
         }
 
-        public void Start(int port, string certificate)
+        public void Start(int port, string certificate, string certificatePassword)
         {
-            serverCertificate = X509Certificate.CreateFromCertFile(certificate);
+            serverCertificate = new X509Certificate2(certificate, certificatePassword, X509KeyStorageFlags.Exportable);
             alive = true;
 
             Task.Run(() => { Listen(port); });

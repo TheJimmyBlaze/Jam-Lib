@@ -1,4 +1,5 @@
-﻿using JamLib.Packet;
+﻿using JamLib.Client;
+using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,10 @@ namespace ExampleClient.View
     /// </summary>
     public partial class LoginPage : Page, INotifyPropertyChanged
     {
+        private const int CONNECT_TIMEOUT = 5000;
+
+        private const string INVALID_CREDENTIALS = "Invalid username or password";
+        private const string SERVER_UNREACHABLE = "Connection attempt timeout";
 
         #region Getters and Setters
 
@@ -35,8 +40,7 @@ namespace ExampleClient.View
             set
             {
                 awaitingLoginResponse = value;
-                NotifyPropertyChanged(nameof(AwaitingLoginResponse));
-                NotifyPropertyChanged(nameof(WorkInProgress));
+                NotifyPropertyChanged();
             }
         }
 
@@ -67,6 +71,22 @@ namespace ExampleClient.View
             {
                 displayInvalidLoginMessage = value;
                 NotifyPropertyChanged(nameof(DisplayInvalidLoginMessage));
+            }
+        }
+
+        private string loginMessageText;
+        public string LoginMessageText
+        {
+            get { return loginMessageText; }
+            set
+            {
+                loginMessageText = value;
+                NotifyPropertyChanged(nameof(LoginMessageText));
+
+                if (loginMessageText == string.Empty)
+                    DisplayInvalidLoginMessage = false;
+                else
+                    DisplayInvalidLoginMessage = true;
             }
         }
 
@@ -120,11 +140,28 @@ namespace ExampleClient.View
 
         private void Login(object sender, RoutedEventArgs e)
         {
-            DisplayInvalidLoginMessage = false;
+            LoginMessageText = string.Empty;
             AwaitingLoginResponse = true;
             Cursor = Cursors.Wait;
 
-            //TODO: Send login request.
+            MainWindow main = App.Current.MainWindow as MainWindow;
+            Task.Run(() =>
+            {
+                main.Client.Connect(address, port, CONNECT_TIMEOUT);
+                if (!main.Client.IsConnected)
+                {
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        LoginMessageText = SERVER_UNREACHABLE;
+                        AwaitingLoginResponse = false;
+                        if (!WorkInProgress)
+                            Cursor = Cursors.Arrow;
+                    });
+                    return;
+                }
+
+                main.Client.Login(username, PasswordBox.Password);
+            });
         }
 
         public void HandleLoginResponse(JamPacket packet)
@@ -137,7 +174,7 @@ namespace ExampleClient.View
             }
             else
             {
-                DisplayInvalidLoginMessage = true;
+                LoginMessageText = INVALID_CREDENTIALS;
             }
 
             AwaitingLoginResponse = false;
@@ -160,6 +197,12 @@ namespace ExampleClient.View
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             NotifyPropertyChanged(nameof(LoginEnabled));
+        }
+
+        private void ClearPassword()
+        {
+            PasswordBox.Password = string.Empty;
+            PasswordBox.Focus();
         }
 
         public void NotifyPropertyChanged(string name = "")

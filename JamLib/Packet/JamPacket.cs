@@ -1,5 +1,7 @@
-﻿using System;
+﻿using JamLib.Packet.Data;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -17,7 +19,9 @@ namespace JamLib.Packet
         {
             public SslStream Stream { get; set; }
             public JamPacket Packet { get; set; }
-            public byte[] HeaderBytes { get; set; }
+            public byte[] HeaderBuffer { get; set; }
+
+            public int BytesRead { get; set; }
         }
 
         private AutoResetEvent sendCompleted = new AutoResetEvent(false);
@@ -78,9 +82,9 @@ namespace JamLib.Packet
             {
                 Stream = stream,
                 Packet = new JamPacket(),
-                HeaderBytes = new byte[Marshal.SizeOf(typeof(JamPacketHeader))]
+                HeaderBuffer = new byte[Marshal.SizeOf(typeof(JamPacketHeader))]
             };
-            stream.BeginRead(state.HeaderBytes, 0, state.HeaderBytes.Length, ReceiveHeaderCallback, state);
+            stream.BeginRead(state.HeaderBuffer, 0, state.HeaderBuffer.Length, ReceiveHeaderCallback, state);
             receiveCompleted.WaitOne();
 
             state.Packet.ContainsData = true;
@@ -89,26 +93,38 @@ namespace JamLib.Packet
 
         private static void ReceiveHeaderCallback(IAsyncResult result)
         {
-            ReceiveState state = (ReceiveState)result.AsyncState;
-            int bytesRead = state.Stream.EndRead(result);
-            int bytesRequired = Marshal.SizeOf(state.Packet.Header.GetType());
+            try
+            {
+                ReceiveState state = (ReceiveState)result.AsyncState;
+                state.BytesRead += state.Stream.EndRead(result);
+                int bytesRequired = Marshal.SizeOf(state.Packet.Header.GetType());
 
-            if (bytesRead != bytesRequired)
-                throw new InvalidOperationException(string.Format("Did not read enought bytes to build a valid Header.\nRequire: {0}b, Read: {0}b.", bytesRequired, bytesRead));
+                if (state.BytesRead != bytesRequired)
+                {
+                    state.Stream.BeginRead(state.HeaderBuffer, state.BytesRead, state.HeaderBuffer.Length - state.BytesRead, ReceiveHeaderCallback, state);
+                    return;
+                }
 
-            state.Packet.Header = new JamPacketHeader(state.HeaderBytes);
-            state.Packet.Data = new byte[state.Packet.Header.DataLength];
-            state.Stream.BeginRead(state.Packet.Data, 0, state.Packet.Header.DataLength, ReceiveDataCallback, state);
+                state.Packet.Header = new JamPacketHeader(state.HeaderBuffer);
+                state.Packet.Data = new byte[state.Packet.Header.DataLength];
+                state.BytesRead = 0;
+
+                state.Stream.BeginRead(state.Packet.Data, 0, state.Packet.Header.DataLength, ReceiveDataCallback, state);
+            }
+            catch (IOException) { }
         }
 
         private static void ReceiveDataCallback(IAsyncResult result)
         {
             ReceiveState state = (ReceiveState)result.AsyncState;
-            int bytesRead = state.Stream.EndRead(result);
+            state.BytesRead += state.Stream.EndRead(result);
             int bytesRequired = state.Packet.Header.DataLength;
 
-            if (bytesRead != bytesRequired)
-                throw new InvalidOperationException(string.Format("Did not read enough bytes to build fill buffer defined in Header.\nRequired: {0}b, Read: {0}b.", bytesRequired, bytesRead));
+            if (state.BytesRead != bytesRequired)
+            {
+                state.Stream.BeginRead(state.Packet.Data, state.BytesRead, state.Packet.Header.DataLength - state.BytesRead, ReceiveDataCallback, state);
+                return;
+            }
 
             receiveCompleted.Set();
         }

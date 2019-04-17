@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,6 +39,9 @@
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -86,10 +90,11 @@
     <Compile Include="Database\sp_helpdiagrams_Result.cs">
       <DependentUpon>JamServerEntityDataModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Domain\Cryptography\SHA256HashFactory.cs" />
+    <Compile Include="Domain\Cryptography\Sha256HashFactory.cs" />
     <Compile Include="Domain\Cryptography\IHashFactory.cs" />
     <Compile Include="Domain\JamAccountFactory.cs" />
-    <Compile Include="Domain\StructMarshal.cs" />
+    <Compile Include="Domain\Serialization\StructMarshal.cs" />
+    <Compile Include="Domain\Serialization\Utf8JsonSerializer.cs" />
     <Compile Include="Packet\Data\LoginResponse.cs" />
     <Compile Include="Packet\Data\PlainTextImperative.cs" />
     <Compile Include="Packet\JamPacket.cs" />

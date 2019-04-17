@@ -4,6 +4,7 @@ using JamLib.Packet.Data;
 using System;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,11 @@ namespace JamLib.Client
 
         public JamAccountFactory Account;
 
+        public bool IsConnected
+        {
+            get { return stream.CanWrite && stream.CanRead; }
+        }
+
         public JamClient(IJamPacketInterpreter interpreter)
         {
             Interperter = interpreter;
@@ -34,17 +40,21 @@ namespace JamLib.Client
 
         public void Connect(string ip, int port, int timeout)
         {
-            TcpClient client = new TcpClient(ip, port);
-            SslStream inProgressStream = new SslStream(client.GetStream(), false, ValidateCertificate);
-
-            inProgressStream.BeginAuthenticateAsClient(ip, ConnectCallback, inProgressStream);
-            connectionCompleted.WaitOne(timeout);
-
-            if (stream != null && stream.IsAuthenticated)
+            try
             {
-                alive = true;
-                Task.Run(() => Listen());
+                TcpClient client = new TcpClient(ip, port);
+                SslStream inProgressStream = new SslStream(client.GetStream(), false, ValidateCertificate);
+                
+                inProgressStream.BeginAuthenticateAsClient(ip, null, SslProtocols.Default, false, ConnectCallback, inProgressStream);
+                connectionCompleted.WaitOne(timeout);
+
+                if (stream != null && stream.IsAuthenticated)
+                {
+                    alive = true;
+                    Task.Run(() => Listen());
+                }
             }
+            catch (SocketException) { }
         }
 
         private void ConnectCallback(IAsyncResult result)

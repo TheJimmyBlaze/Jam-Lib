@@ -23,11 +23,14 @@ namespace ExampleClient.Network
 
         private void HandleLoginResponse(JamPacket packet)
         {
-            MainWindow main = App.Current.MainWindow as MainWindow;
-            if (main.ViewFrame.Content is LoginPage page)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                page.HandleLoginResponse(packet);
-            }
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                if (main.ViewFrame.Content is LoginPage page)
+                {
+                    page.HandleLoginResponse(packet);
+                }
+            });
         }
     }
 }
