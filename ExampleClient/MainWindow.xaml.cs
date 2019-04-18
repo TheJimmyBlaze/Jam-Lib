@@ -33,8 +33,9 @@ namespace ExampleClient
             IJamPacketInterpreter interpreter = new ChatClientInterpreter();
             Client = new JamClient(interpreter);
 
-            LoginPage loginPage = new LoginPage();
-            Navigate(loginPage);
+            //LoginPage loginPage = new LoginPage();
+            MessagePage test = new MessagePage();
+            Navigate(test);
         }
 
         public void Navigate(Page page)

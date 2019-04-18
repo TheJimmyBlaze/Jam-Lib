@@ -11,7 +11,9 @@
     <Grid>
 
         <Grid.Background>
-            <ImageBrush ImageSource="\Resource\White-Prisms-DOF.png" Stretch="UniformToFill"/>
+            <ImageBrush
+                ImageSource="\Resource\White-Prisms-DOF.png"
+                Stretch="UniformToFill"/>
         </Grid.Background>
 
         <Border

@@ -1,0 +1,72 @@
+﻿<Page x:Class="ExampleClient.View.MessagePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ExampleClient.View"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="MessagePage">
+
+    <Grid
+        Background="LightGray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border
+            Grid.Column="0"
+            Background="WhiteSmoke"
+            Padding="8, 16"
+            VerticalAlignment="Stretch">
+            <Border.Effect>
+                <DropShadowEffect Color="LightGray"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                </Grid.RowDefinitions>
+                
+                <Grid
+                    Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Separator
+                        Grid.Row="0"/>
+                    <ItemsControl
+                        Grid.Row="1"
+                        HorizontalAlignment="Stretch">
+                        
+                    </ItemsControl>
+                    <Separator
+                        Grid.Row="2"/>
+                </Grid>
+
+                <Button
+                    Grid.Row="1"
+                    Margin="2"
+                    Width="200">
+                    Settings
+                </Button>
+                
+                <Button
+                    Grid.Row="2"
+                    Margin="2"
+                    Width="200"
+                    Background="IndianRed"
+                    Foreground="WhiteSmoke"
+                    BorderBrush="Darkred">
+                    Logout
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
