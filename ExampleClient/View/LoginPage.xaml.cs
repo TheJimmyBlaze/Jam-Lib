@@ -63,14 +63,14 @@ namespace ExampleClient.View
             set { }
         }
 
-        private bool displayInvalidLoginMessage = false;
-        public bool DisplayInvalidLoginMessage
+        private bool displayLoginMessage = false;
+        public bool DisplayLoginMessage
         {
-            get { return displayInvalidLoginMessage; }
+            get { return displayLoginMessage; }
             set
             {
-                displayInvalidLoginMessage = value;
-                NotifyPropertyChanged(nameof(DisplayInvalidLoginMessage));
+                displayLoginMessage = value;
+                NotifyPropertyChanged(nameof(DisplayLoginMessage));
             }
         }
 
@@ -84,9 +84,9 @@ namespace ExampleClient.View
                 NotifyPropertyChanged(nameof(LoginMessageText));
 
                 if (loginMessageText == string.Empty)
-                    DisplayInvalidLoginMessage = false;
+                    DisplayLoginMessage = false;
                 else
-                    DisplayInvalidLoginMessage = true;
+                    DisplayLoginMessage = true;
             }
         }
 
@@ -152,6 +152,7 @@ namespace ExampleClient.View
                 {
                     App.Current.Dispatcher.Invoke(() =>
                     {
+                        main.Client.Dispose();
                         LoginMessageText = SERVER_UNREACHABLE;
                         AwaitingLoginResponse = false;
                         if (!WorkInProgress)
@@ -166,6 +167,9 @@ namespace ExampleClient.View
 
         public void HandleLoginResponse(JamPacket packet)
         {
+            if (packet.Header.DataType != LoginResponse.DATA_TYPE)
+                return;
+
             MainWindow main = App.Current.MainWindow as MainWindow;
             LoginResponse response = new LoginResponse(packet.Data);
 

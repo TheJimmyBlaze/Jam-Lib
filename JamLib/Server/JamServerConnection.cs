@@ -3,6 +3,9 @@ using JamLib.Domain;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +20,7 @@ namespace JamLib.Server
         private bool alive;
 
         public InternalServerInterpreter InternalInterpreter;
+        private readonly ConcurrentQueue<JamPacket> packetSendQueue = new ConcurrentQueue<JamPacket>();
 
         public Account Account { get; private set; }
 
@@ -30,8 +34,10 @@ namespace JamLib.Server
             this.stream = stream;
             alive = true;
 
-            Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
             Task.Run(() => Listen());
+
+            Task.Run(() => SendPacketsFromQueue());
+            Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
         }
         
         public void Dispose()
@@ -98,16 +104,30 @@ namespace JamLib.Server
             Dispose();
         }
 
-        public int Send(JamPacket packet)
+        public void Send(JamPacket packet)
         {
-            int sentBytes = 0;
+            packetSendQueue.Enqueue(packet);
+        }
 
-            sentBytes = packet.Send(stream);
-
-            while (sentBytes == 0)
+        private void SendPacketsFromQueue()
+        {
+            while (alive)
+            {
                 Thread.Sleep(50);
 
-            return sentBytes;
+                if (packetSendQueue.Count > 0 && stream.CanWrite)
+                {
+                    try
+                    {
+                        if (packetSendQueue.TryDequeue(out JamPacket sendPacket))
+                            sendPacket.Send(stream);
+                    }
+                    catch (IOException)
+                    {
+                        Dispose();
+                    }
+                }
+            }
         }
 
         private void Listen()
@@ -125,20 +145,13 @@ namespace JamLib.Server
             {
                 Thread.Sleep(pollFrequency);
                 
-                try
+                PingRequest pingRequest = new PingRequest()
                 {
-                    PingRequest pingRequest = new PingRequest()
-                    {
-                        PingTimeUtc = DateTime.UtcNow
-                    };
+                    PingTimeUtc = DateTime.UtcNow
+                };
 
-                    JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
-                    Send(pingPacket);
-                }
-                catch (System.IO.IOException)
-                {
-                    Dispose();
-                }
+                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
+                Send(pingPacket);
             }
         }
     }

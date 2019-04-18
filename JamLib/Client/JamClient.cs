@@ -3,6 +3,9 @@ using JamLib.Domain;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
@@ -21,6 +24,7 @@ namespace JamLib.Client
 
         public readonly IJamPacketInterpreter Interperter;
         public readonly InternalClientInterpreter InternalInterpreter;
+        private readonly ConcurrentQueue<JamPacket> packetSendQueue = new ConcurrentQueue<JamPacket>();
 
         public Account Account { get; private set; }
 
@@ -55,6 +59,7 @@ namespace JamLib.Client
                 {
                     alive = true;
                     Task.Run(() => Listen());
+                    Task.Run(() => SendPacketsFromQueue());
                 }
             }
             catch (SocketException) { }
@@ -106,16 +111,30 @@ namespace JamLib.Client
             Send(responsePacket);
         }
 
-        public int Send(JamPacket packet)
+        public void Send(JamPacket packet)
         {
-            int sentBytes = 0;
+            packetSendQueue.Enqueue(packet);
+        }
 
-            sentBytes = packet.Send(stream);
-
-            while (sentBytes == 0)
+        private void SendPacketsFromQueue()
+        {
+            while (alive)
+            {
                 Thread.Sleep(50);
 
-            return sentBytes;
+                if (packetSendQueue.Count > 0 && stream.CanWrite)
+                {
+                    try
+                    {
+                        if (packetSendQueue.TryDequeue(out JamPacket sendPacket))
+                            sendPacket.Send(stream);
+                    }
+                    catch (IOException)
+                    {
+                        Dispose();
+                    }
+                }
+            }
         }
 
         private void Listen()

@@ -72,9 +72,9 @@ namespace JamLib.Server
             while (alive)
             {
                 TcpClient client = listener.AcceptTcpClient();
-                SslStream stream = new SslStream(client.GetStream(), false);
+                SslStream inProgressStream = new SslStream(client.GetStream(), false);
 
-                stream.BeginAuthenticateAsServer(serverCertificate, AcceptCallback, stream);
+                inProgressStream.BeginAuthenticateAsServer(serverCertificate, AcceptCallback, inProgressStream);
                 acceptCompleted.WaitOne();
             }
         }

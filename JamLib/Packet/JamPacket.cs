@@ -22,10 +22,10 @@ namespace JamLib.Packet
             public byte[] HeaderBuffer { get; set; }
 
             public int BytesRead { get; set; }
+            public AutoResetEvent ReceiveCompleted { get; set; }
         }
 
         private AutoResetEvent sendCompleted = new AutoResetEvent(false);
-        private static AutoResetEvent receiveCompleted = new AutoResetEvent(false);
 
         public JamPacketHeader Header { get; set; }
         public byte[] Data { get; set; }
@@ -82,10 +82,14 @@ namespace JamLib.Packet
             {
                 Stream = stream,
                 Packet = new JamPacket(),
-                HeaderBuffer = new byte[Marshal.SizeOf(typeof(JamPacketHeader))]
+                HeaderBuffer = new byte[Marshal.SizeOf(typeof(JamPacketHeader))],
+                ReceiveCompleted = new AutoResetEvent(false)
             };
             stream.BeginRead(state.HeaderBuffer, 0, state.HeaderBuffer.Length, ReceiveHeaderCallback, state);
-            receiveCompleted.WaitOne();
+            state.ReceiveCompleted.WaitOne();
+
+            if (state.Packet.Header.DataType == 0)
+                return null;
 
             state.Packet.ContainsData = true;
             return state.Packet;
@@ -126,7 +130,7 @@ namespace JamLib.Packet
                 return;
             }
 
-            receiveCompleted.Set();
+            state.ReceiveCompleted.Set();
         }
     }
 }
