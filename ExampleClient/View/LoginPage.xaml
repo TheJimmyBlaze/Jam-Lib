@@ -162,7 +162,7 @@
                         FontSize="10"
                         TextAlignment="Center">                     
                         <Hyperlink 
-                            Foreground="LightGray"
+                            Foreground="Gray"
                             NavigateUri="https://github.com/TheJimmyBlaze/JamLib"
                             RequestNavigate="Hyperlink_RequestNavigate">
                             www.github.com/TheJimmyBlaze/JamLib

@@ -60,6 +60,7 @@
     <Compile Include="Converter\CollapseWhenFalseConverter.cs" />
     <Compile Include="Converter\CollapseWhenTrueConverter.cs" />
     <Compile Include="Converter\NotConverter.cs" />
+    <Compile Include="Domain\DisplayableAccount.cs" />
     <Compile Include="Network\ChatClientInterpreter.cs" />
     <Compile Include="View\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
@@ -133,5 +134,6 @@
   <ItemGroup>
     <Resource Include="Resource\Admin-Settings-Male.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
