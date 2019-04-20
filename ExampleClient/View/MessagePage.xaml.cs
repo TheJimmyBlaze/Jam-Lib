@@ -24,6 +24,17 @@ namespace ExampleClient.View
     /// </summary>
     public partial class MessagePage : Page, INotifyPropertyChanged
     {
+        private DisplayableAccount loggedInAccount;
+        public DisplayableAccount LoggedInAccount
+        {
+            get { return loggedInAccount; }
+            set
+            {
+                loggedInAccount = value;
+                NotifyPropertyChanged(nameof(LoggedInAccount));
+            }
+        }
+
         private ObservableCollection<DisplayableAccount> accounts;
         public ObservableCollection<DisplayableAccount> Accounts
         {
@@ -33,6 +44,24 @@ namespace ExampleClient.View
                     accounts = new ObservableCollection<DisplayableAccount>();
                 return accounts;
             }
+            set { }
+        }
+
+        private int unreadMessages = 0;
+        public int UnreadMessages
+        {
+            get { return unreadMessages; }
+            set
+            {
+                unreadMessages = value;
+                NotifyPropertyChanged(nameof(UnreadMessages));
+                NotifyPropertyChanged(nameof(UnreadMessagesText));
+            }
+        }
+
+        public string UnreadMessagesText
+        {
+            get { return string.Format("{0} unread messages", UnreadMessages); }
             set { }
         }
 
@@ -46,6 +75,14 @@ namespace ExampleClient.View
 
         private void PageLoaded(object sender, RoutedEventArgs e)
         {
+            LoggedInAccount = new DisplayableAccount(new Account()
+            {
+                AccountID = Guid.Parse("ad509e39-afa9-4b56-bfe6-6c9d70a50954"),
+                LastUpdateUTC = DateTime.UtcNow,
+                Username = "TheJimmyBlaze",
+                Approved = true
+            });
+
             Accounts.Add(new DisplayableAccount(new Account()
             {
                 AccountID = Guid.Parse("f29af9c5-c98f-4067-a3ea-f9baab8853f9"),
@@ -60,14 +97,6 @@ namespace ExampleClient.View
                 LastUpdateUTC = DateTime.UtcNow,
                 Username = "Deadponys",
                 Approved = false
-            }));
-
-            Accounts.Add(new DisplayableAccount(new Account()
-            {
-                AccountID = Guid.Parse("ad509e39-afa9-4b56-bfe6-6c9d70a50954"),
-                LastUpdateUTC = DateTime.UtcNow,
-                Username = "TheJimmyBlaze",
-                Approved = true
             }));
         }
 

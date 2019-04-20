@@ -27,13 +27,59 @@
 
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="32"/>
                     <RowDefinition Height="32"/>
                 </Grid.RowDefinitions>
-                
+
                 <Grid
-                    Grid.Row="0">
+                    Grid.Row="0"
+                    Margin="2"
+                    HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="18"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="36"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border
+                        Grid.Column="0"
+                        Grid.RowSpan="2"
+                        Background="{Binding LoggedInAccount.Colour}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                        <Label
+                            FontSize="24"
+                            Padding="0"
+                            Foreground="White"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Content="{Binding LoggedInAccount.Initial}"/>
+                    </Border>
+
+                    <Label
+                        Grid.Column="1"
+                        Grid.Row="0"
+                        VerticalContentAlignment="Center"
+                        Padding="4, 0, 0, 0"
+                        Content="{Binding LoggedInAccount.Account.Username}"/>
+
+                    <Label
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        VerticalContentAlignment="Center"
+                        Padding="4, 0, 0, 0"
+                        Foreground="Gray"
+                        Content="{Binding UnreadMessagesText}"/>
+                </Grid>
+
+                <Grid
+                    Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="*"/>
@@ -49,49 +95,75 @@
                         
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid
-                                    Margin="2"
-                                    HorizontalAlignment="Stretch">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="18"/>
-                                        <RowDefinition Height="18"/>
-                                    </Grid.RowDefinitions>
+                                <Border>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
 
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="36"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                                            <Setter
+                                                Property="BorderThickness"
+                                                Value="1"/>
+                                            
+                                            <Style.Triggers>
+                                                <Trigger
+                                                    Property="IsMouseOver"
+                                                    Value="True">
+                                                    <Setter
+                                                        Property="Background"
+                                                        Value="#BEE6FD"/>
+                                                    
+                                                    <Setter
+                                                        Property="BorderBrush"
+                                                        Value="#3C7FB1"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
 
-                                    <Border
-                                        Grid.Column="0"
-                                        Grid.RowSpan="2"
-                                        Background="{Binding Colour}"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch">
+                                    <Grid
+                                        Margin="1"
+                                        HorizontalAlignment="Stretch">
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="18"/>
+                                            <RowDefinition Height="18"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="36"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border
+                                            Grid.Column="0"
+                                            Grid.RowSpan="2"
+                                            Background="{Binding Colour}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch">
+                                            <Label
+                                                FontSize="24"
+                                                Padding="0"
+                                                Foreground="White"
+                                                HorizontalContentAlignment="Center"
+                                                VerticalContentAlignment="Center"
+                                                Content="{Binding Initial}"/>
+                                        </Border>
+
                                         <Label
-                                            FontSize="24"
-                                            Padding="0"
-                                            Foreground="White"
-                                            HorizontalContentAlignment="Center"
+                                            Grid.Column="1"
+                                            Grid.Row="0"
                                             VerticalContentAlignment="Center"
-                                            Content="{Binding Initial}"/>
-                                    </Border>
+                                            Padding="4, 0, 0, 0"
+                                            Content="{Binding Account.Username}"/>
 
-                                    <Label
-                                        Grid.Column="1"
-                                        Grid.Row="0"
-                                        VerticalContentAlignment="Center"
-                                        Padding="4, 0, 0, 0"
-                                        Content="{Binding Account.Username}"/>
-
-                                    <Label
-                                        Grid.Column="1"
-                                        Grid.Row="1"
-                                        VerticalContentAlignment="Center"
-                                        Padding="4, 0, 0, 0"
-                                        Content="Online"
-                                        Foreground="Gray"/>
-                                </Grid>
+                                        <Label
+                                            Grid.Column="1"
+                                            Grid.Row="1"
+                                            VerticalContentAlignment="Center"
+                                            Padding="4, 0, 0, 0"
+                                            Content="Online"
+                                            Foreground="Gray"/>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>                        
                     </ItemsControl>
@@ -100,19 +172,19 @@
                 </Grid>
 
                 <Button
-                    Grid.Row="1"
+                    Grid.Row="2"
                     Margin="2"
                     Width="200">
                     Settings
                 </Button>
-                
+
                 <Button
-                    Grid.Row="2"
+                    Grid.Row="3"
                     Margin="2"
                     Width="200"
                     Background="IndianRed"
-                    Foreground="WhiteSmoke"
-                    BorderBrush="Darkred">
+                    BorderBrush="DarkRed"
+                    Foreground="WhiteSmoke">
                     Logout
                 </Button>
             </Grid>
@@ -125,11 +197,17 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <TextBox
+            <Border
                 Grid.Row="1"
                 Height="72"
                 HorizontalAlignment="Stretch"
-                Margin="8"/>
+                Margin="8">
+                <Border.Effect>
+                    <DropShadowEffect Color="LightGray"/>
+                </Border.Effect>
+                
+                <TextBox/>
+            </Border>
         </Grid>
     </Grid>
 </Page>

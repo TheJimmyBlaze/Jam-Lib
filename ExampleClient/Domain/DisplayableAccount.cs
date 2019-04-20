@@ -19,7 +19,7 @@ namespace ExampleClient.Domain
 
         public string Initial
         {
-            get { return Account.Username.Substring(0, 1); }
+            get { return Account?.Username.Substring(0, 1); }
             set { }
         }
 
@@ -27,6 +27,9 @@ namespace ExampleClient.Domain
         {
             get
             {
+                if (Account == null)
+                    return null;
+
                 Random random = new Random(Account.AccountID.GetHashCode());
                 int r = (int)(random.NextDouble() * 100) + 100;
                 int g = (int)(random.NextDouble() * 100) + 100;
