@@ -25,7 +25,7 @@ namespace JamLib.Packet
             public AutoResetEvent ReceiveCompleted { get; set; }
         }
 
-        private AutoResetEvent sendCompleted = new AutoResetEvent(false);
+        private readonly AutoResetEvent sendCompleted = new AutoResetEvent(false);
 
         public JamPacketHeader Header { get; set; }
         public byte[] Data { get; set; }

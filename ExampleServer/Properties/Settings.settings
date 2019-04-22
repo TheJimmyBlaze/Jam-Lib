@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ExampleServer.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PortNumber" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">5565</Value>
+    </Setting>
+    <Setting Name="CertificatePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">selfsigned.pfx</Value>
+    </Setting>
+    <Setting Name="CertificatePassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)">password</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

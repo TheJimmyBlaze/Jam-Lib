@@ -26,44 +26,64 @@ namespace ExampleServer
 
         static void Main(string[] args)
         {
-            if (!ReadArgs(args))
+            if (!LoadSettings())
                 return;
 
             IHashFactory hashFactory = BuildHashFactory();
             IJamPacketInterpreter interpreter = new ChatServerInterpreter();
 
+            EnsureRootAccount(hashFactory);
+
+            Console.WriteLine("Starting server...");
             Server = new JamServer(hashFactory, interpreter);
             Server.Start(port, certificatePath, certificatePassword);
 
             serverExiting.WaitOne();
         }
 
-        private static bool ReadArgs(string[] args)
+        private static bool LoadSettings()
         {
-            const string USAGE_EXAMPLE = "Usage: ExampleServer <port number as integer> <certificate path as string>";
+            port = Properties.Settings.Default.PortNumber;
 
-            if (args.Length < 3)
-            {
-                Console.Error.WriteLine("ERROR: Incorrect number of arguments. {0}", USAGE_EXAMPLE);
-                return false;
-            }
-            
-            if (!int.TryParse(args[0], out port))
-            {
-                Console.Error.WriteLine("ERROR: Port (arg[0]) could not be converted to an integer. {0}", USAGE_EXAMPLE);
-                return false;
-            }
-
-            certificatePath = args[1];
+            certificatePath = Properties.Settings.Default.CertificatePath;
             if (!File.Exists(certificatePath))
             {
-                Console.Error.WriteLine("ERROR: Certificate path: {0} does not exist. {1}", certificatePath, USAGE_EXAMPLE);
+                Console.Error.WriteLine("Settings Load ERROR: Certificate path: {0} does not exist.", certificatePath);
                 return false;
             }
 
-            certificatePassword = args[2];
+            certificatePassword = Properties.Settings.Default.CertificatePassword;
 
             return true;
+        }
+
+        private static void EnsureRootAccount(IHashFactory hashFactory)
+        {
+            if (!Domain.AccountFactory.RequireRootAccount())
+                return;
+
+            Console.WriteLine("A root account does not exist on the connected database, please create one now.");
+            AttemptCreateRootAccount(hashFactory);
+        }
+
+        private static void AttemptCreateRootAccount(IHashFactory hashFactory)
+        {
+            Console.WriteLine("Enter root username:");
+            string username = Console.ReadLine();
+
+            Console.WriteLine("Enter root password:");
+            string password = Console.ReadLine();
+
+            try
+            {
+                Domain.AccountFactory.CreateRootAccount(username, password, hashFactory);
+                Console.WriteLine("Root account created successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Root Account ERROR: {0}", ex);
+                AttemptCreateRootAccount(hashFactory);
+            }
         }
 
         private static IHashFactory BuildHashFactory()

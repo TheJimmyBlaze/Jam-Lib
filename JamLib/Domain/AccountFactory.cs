@@ -42,30 +42,34 @@ namespace JamLib.Domain
 
             account.AccountAccessCodes.Add(accessCode);
 
-            JamServerEntities dbContext = new JamServerEntities();
-            dbContext.Accounts.Add(account);
-            dbContext.SaveChanges();
+            using (JamServerEntities dbContext = new JamServerEntities())
+            {
+                dbContext.Accounts.Add(account);
+                dbContext.SaveChanges();
+            }
 
             return account;
         }
 
         public static Account Authenticate(string username, string password, IHashFactory hashFactory)
         {
-            JamServerEntities context = new JamServerEntities();
-            context.Configuration.LazyLoadingEnabled = false;
-            Account account = context.Accounts.SingleOrDefault(x => x.Username == username);
-
-            if (account != null)
+            using (JamServerEntities dbContext = new JamServerEntities())
             {
-                AccountAccessCode accessCode = context.AccountAccessCodes.SingleOrDefault(x => x.AccountID == account.AccountID);
+                dbContext.Configuration.LazyLoadingEnabled = false;
+                Account account = dbContext.Accounts.SingleOrDefault(x => x.Username == username);
 
-                if (accessCode != null && hashFactory.ValidateString(password, accessCode.AccessCode))
+                if (account != null)
                 {
-                    return account;
+                    AccountAccessCode accessCode = dbContext.AccountAccessCodes.SingleOrDefault(x => x.AccountID == account.AccountID);
+
+                    if (accessCode != null && hashFactory.ValidateString(password, accessCode.AccessCode))
+                    {
+                        return account;
+                    }
+                    else throw new InvalidAccessCodeException();
                 }
-                else throw new InvalidAccessCodeException();
+                else throw new InvalidUsernameException();
             }
-            else throw new InvalidUsernameException();
         }
     }
 }

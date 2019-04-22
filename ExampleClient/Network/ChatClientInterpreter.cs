@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ExampleClient.Network
 {
-    public class ChatClientInterpreter : IJamPacketInterpreter
+    internal class ChatClientInterpreter : IJamPacketInterpreter
     {
         public void Interpret(JamPacket packet)
         {

@@ -24,6 +24,7 @@ namespace ExampleClient.View
     /// </summary>
     public partial class MessagePage : Page, INotifyPropertyChanged
     {
+        #region Getters and Setters
         private DisplayableAccount loggedInAccount;
         public DisplayableAccount LoggedInAccount
         {
@@ -64,6 +65,7 @@ namespace ExampleClient.View
             get { return string.Format("{0} unread messages", UnreadMessages); }
             set { }
         }
+        #endregion
 
         public event PropertyChangedEventHandler PropertyChanged;
 
