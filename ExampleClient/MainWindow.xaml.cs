@@ -30,8 +30,8 @@ namespace ExampleClient
         {
             InitializeComponent();
 
-            IJamPacketInterpreter interpreter = new ChatClientInterpreter();
-            Client = new JamClient(interpreter);
+            Client = new JamClient();
+            Client.MessageReceived += OnMessageReceived;
 
             //LoginPage loginPage = new LoginPage();
             MessagePage test = new MessagePage();
@@ -41,6 +41,11 @@ namespace ExampleClient
         public void Navigate(Page page)
         {
             ViewFrame.Navigate(page);
+        }
+
+        private void OnMessageReceived(object sender, JamClient.MessageReceivedEventArgs args)
+        {
+            ChatClientInterpreter.Interpret(args.Packet);
         }
     }
 }

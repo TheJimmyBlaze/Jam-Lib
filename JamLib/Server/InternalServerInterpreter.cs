@@ -1,23 +1,11 @@
 ﻿using JamLib.Packet;
 using JamLib.Packet.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace JamLib.Server
 {
-    public class InternalServerInterpreter : IJamPacketInterpreter
+    internal static class InternalServerInterpreter
     {
-        private readonly JamServerConnection serverConnection;
-
-        public InternalServerInterpreter(JamServerConnection serverConnection)
-        {
-            this.serverConnection = serverConnection;
-        }
-
-        public void Interpret(JamPacket packet)
+        internal static void Interpret(JamServerConnection serverConnection, JamPacket packet)
         {
             switch (packet.Header.DataType)
             {
@@ -28,7 +16,12 @@ namespace JamLib.Server
                     serverConnection.Ping(packet);
                     break;
                 default:
-                    serverConnection.Server.Interpreter.Interpret(packet);
+                    JamServer.MessageReceivedEventArgs args = new JamServer.MessageReceivedEventArgs()
+                    {
+                        ServerConnection = serverConnection,
+                        Packet = packet
+                    };
+                    serverConnection.Server.OnMessageReceived(args);
                     break;
             }
         }

@@ -102,7 +102,6 @@
     <Compile Include="Packet\Data\PlainTextImperative.cs" />
     <Compile Include="Packet\JamPacket.cs" />
     <Compile Include="Packet\JamPacketHeader.cs" />
-    <Compile Include="Packet\IJamPacketInterpreter.cs" />
     <Compile Include="Packet\Data\LoginRequest.cs" />
     <Compile Include="Server\InternalServerInterpreter.cs" />
     <Compile Include="Server\JamPacketRouter.cs" />

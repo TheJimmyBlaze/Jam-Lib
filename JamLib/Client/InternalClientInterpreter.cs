@@ -8,16 +8,9 @@ using System.Threading.Tasks;
 
 namespace JamLib.Client
 {
-    public class InternalClientInterpreter : IJamPacketInterpreter
+    internal static class InternalClientInterpreter
     {
-        private readonly JamClient client;
-
-        public InternalClientInterpreter(JamClient client)
-        {
-            this.client = client;
-        }
-
-        public void Interpret(JamPacket packet)
+        internal static void Interpret(JamClient client, JamPacket packet)
         {
             switch (packet.Header.DataType)
             {
@@ -25,7 +18,11 @@ namespace JamLib.Client
                     client.Ping(packet);
                     break;
                 default:
-                    client.Interperter.Interpret(packet);
+                    JamClient.MessageReceivedEventArgs args = new JamClient.MessageReceivedEventArgs()
+                    {
+                        Packet = packet
+                    };
+                    client.OnMessageReceived(args);
                     break;
             }
         }

@@ -7,28 +7,31 @@ using System.Threading.Tasks;
 
 namespace JamLib.Server
 {
-    public class JamPacketRouter
+    internal static class JamPacketRouter
     {
-        public void Route(JamPacket packet, JamServerConnection senderConnection)
+        internal static void Route(JamServerConnection serverConnection, JamPacket packet)
         {
-            JamServer server = senderConnection.Server;
-
+            JamServer server = serverConnection.Server;
             Guid recipient = packet.Header.Receipient;
-            Guid sender = packet.Header.Sender;
 
             if (recipient == Guid.Empty)
             {
-                senderConnection.InternalInterpreter.Interpret(packet);
+                InternalServerInterpreter.Interpret(serverConnection, packet);
                 return;
             }
 
             JamServerConnection recipientConnection = server.GetConnection(recipient);
             if (recipientConnection == null)
-                HandleOfflineReceipient(packet);
+            {
+                JamServer.MessageReceivedEventArgs args = new JamServer.MessageReceivedEventArgs()
+                {
+                    ServerConnection = serverConnection,
+                    Packet = packet
+                };
+                server.OnUndelieveredMessageReceived(args);
+            }
             else
                 recipientConnection.Send(packet);   
         }
-
-        protected virtual void HandleOfflineReceipient(JamPacket packet) { }
     }
 }

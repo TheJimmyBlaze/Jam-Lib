@@ -15,25 +15,25 @@ namespace JamLib.Server
 {
     public class JamServer: IDisposable
     {
-        private List<JamServerConnection> connections = new List<JamServerConnection>();
-        private AutoResetEvent acceptCompleted = new AutoResetEvent(false);
+        public EventHandler<MessageReceivedEventArgs> MessageReceived;
+        public EventHandler<MessageReceivedEventArgs> UndeliveredMessageReceived;
+        public class MessageReceivedEventArgs : EventArgs
+        {
+            public JamServerConnection ServerConnection { get; set; }
+            public JamPacket Packet { get; set; }
+        }
+        
+        private readonly List<JamServerConnection> connections = new List<JamServerConnection>();
+        private readonly AutoResetEvent acceptCompleted = new AutoResetEvent(false);
 
         private X509Certificate serverCertificate;
         public readonly IHashFactory HashFactory;
 
         private bool alive;
-        
-        public readonly IJamPacketInterpreter Interpreter;
-        public readonly JamPacketRouter Router;
 
-        public JamServer(IHashFactory hashFactory, IJamPacketInterpreter interpreter, JamPacketRouter router = null)
+        public JamServer(IHashFactory hashFactory)
         {
             HashFactory = hashFactory;
-            Interpreter = interpreter;
-
-            Router = router;
-            if (Router == null)
-                Router = new JamPacketRouter();
         }
 
         public JamServerConnection GetConnection(Guid accountID)
@@ -87,6 +87,16 @@ namespace JamLib.Server
             JamServerConnection connection = new JamServerConnection(stream, this);
 
             acceptCompleted.Set();
+        }
+
+        public void OnMessageReceived(MessageReceivedEventArgs args)
+        {
+            MessageReceived?.Invoke(this, args);
+        }
+
+        public void OnUndelieveredMessageReceived(MessageReceivedEventArgs args)
+        {
+            UndeliveredMessageReceived?.Invoke(this, args);
         }
     }
 }

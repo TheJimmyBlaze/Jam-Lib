@@ -1,4 +1,5 @@
 ﻿using ExampleClient.View;
+using JamLib.Client;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
@@ -9,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace ExampleClient.Network
 {
-    internal class ChatClientInterpreter : IJamPacketInterpreter
+    internal static class ChatClientInterpreter
     {
-        public void Interpret(JamPacket packet)
+        internal static void Interpret(JamPacket packet)
         {
             switch (packet.Header.DataType)
             {
@@ -21,7 +22,7 @@ namespace ExampleClient.Network
             }
         }
 
-        private void HandleLoginResponse(JamPacket packet)
+        private static void HandleLoginResponse(JamPacket packet)
         {
             App.Current.Dispatcher.Invoke(() =>
             {

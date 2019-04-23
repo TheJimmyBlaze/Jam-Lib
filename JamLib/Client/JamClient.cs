@@ -17,13 +17,17 @@ namespace JamLib.Client
 {
     public class JamClient: IDisposable
     {
-        private AutoResetEvent connectionCompleted = new AutoResetEvent(false);
+        public EventHandler<MessageReceivedEventArgs> MessageReceived;
+        public class MessageReceivedEventArgs: EventArgs
+        {
+            public JamPacket Packet { get; set; }
+        }
+
+        private readonly AutoResetEvent connectionCompleted = new AutoResetEvent(false);
 
         private SslStream stream;
         private bool alive;
 
-        public readonly IJamPacketInterpreter Interperter;
-        public readonly InternalClientInterpreter InternalInterpreter;
         private readonly ConcurrentQueue<JamPacket> packetSendQueue = new ConcurrentQueue<JamPacket>();
 
         public Account Account { get; private set; }
@@ -31,12 +35,6 @@ namespace JamLib.Client
         public bool IsConnected
         {
             get { return stream.CanWrite && stream.CanRead; }
-        }
-
-        public JamClient(IJamPacketInterpreter interpreter)
-        {
-            Interperter = interpreter;
-            InternalInterpreter = new InternalClientInterpreter(this);
         }
         
         protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -142,8 +140,13 @@ namespace JamLib.Client
             while (alive)
             {
                 JamPacket packet = JamPacket.Receive(stream);
-                InternalInterpreter.Interpret(packet);
+                InternalClientInterpreter.Interpret(this, packet);
             }
+        }
+
+        public void OnMessageReceived(MessageReceivedEventArgs args)
+        {
+            MessageReceived?.Invoke(this, args);
         }
     }
 }

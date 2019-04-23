@@ -19,7 +19,6 @@ namespace JamLib.Server
         private readonly SslStream stream;
         private bool alive;
 
-        public InternalServerInterpreter InternalInterpreter;
         private readonly ConcurrentQueue<JamPacket> packetSendQueue = new ConcurrentQueue<JamPacket>();
 
         public Account Account { get; private set; }
@@ -28,7 +27,6 @@ namespace JamLib.Server
         {
             const int DISCONNECT_POLL_FREQUENCY = 500;
 
-            InternalInterpreter = new InternalServerInterpreter(this);
             Server = server;
 
             this.stream = stream;
@@ -135,7 +133,7 @@ namespace JamLib.Server
             while (alive)
             {
                 JamPacket packet = JamPacket.Receive(stream);
-                Server.Router.Route(packet, this);
+                JamPacketRouter.Route(this, packet);
             }
         }
 

@@ -30,12 +30,13 @@ namespace ExampleServer
                 return;
 
             IHashFactory hashFactory = BuildHashFactory();
-            IJamPacketInterpreter interpreter = new ChatServerInterpreter();
 
             EnsureRootAccount(hashFactory);
 
             Console.WriteLine("Starting server...");
-            Server = new JamServer(hashFactory, interpreter);
+            Server = new JamServer(hashFactory);
+            Server.MessageReceived += OnMessageReceived;
+            
             Server.Start(port, certificatePath, certificatePassword);
 
             serverExiting.WaitOne();
@@ -95,6 +96,11 @@ namespace ExampleServer
             Sha256HashFactory hashFactory = new Sha256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
 
             return hashFactory;
+        }
+
+        private static void OnMessageReceived(object sender, JamServer.MessageReceivedEventArgs args)
+        {
+            ChatServerInterpreter.Interpret(args.ServerConnection, args.Packet);
         }
     }
 }
