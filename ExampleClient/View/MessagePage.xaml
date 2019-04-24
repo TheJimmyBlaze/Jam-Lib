@@ -159,7 +159,7 @@
                                             Grid.Row="1"
                                             VerticalContentAlignment="Center"
                                             Padding="4, 0, 0, 0"
-                                            Content="Online"
+                                            Content="{Binding OnlineStatus}"
                                             Foreground="Gray"/>
                                     </Grid>
                                 </Border>
@@ -184,7 +184,8 @@
         </Border>
 
         <Grid
-            Grid.Column="1">
+            Grid.Column="1"
+            Margin="8, 16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
@@ -192,14 +193,21 @@
 
             <Border
                 Grid.Row="1"
-                Height="72"
-                HorizontalAlignment="Stretch"
-                Margin="8">
+                HorizontalAlignment="Stretch">
                 <Border.Effect>
                     <DropShadowEffect Color="LightGray"/>
                 </Border.Effect>
                 
-                <TextBox/>
+                <TextBox
+                    Height="auto"
+                    TextWrapping="Wrap"
+                    AcceptsReturn="True"
+                    AcceptsTab="True"
+                    SpellCheck.IsEnabled="True"
+                    MaxHeight="128"
+                    VerticalScrollBarVisibility="Auto"
+                    Padding="6"
+                    IsEnabled="False"/>
             </Border>
         </Grid>
     </Grid>

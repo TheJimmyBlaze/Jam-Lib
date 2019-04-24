@@ -9,17 +9,31 @@ using System.Windows.Media;
 
 namespace ExampleClient.Domain
 {
-    public struct DisplayableAccount
+    public class DisplayableAccount
     {
         public Account Account { get; set; }
-        public DisplayableAccount(Account account)
+        public bool Online { get; set; }
+
+        public DisplayableAccount(Account account, bool online)
         {
             Account = account;
+            Online = online;
         }
 
         public string Initial
         {
             get { return Account?.Username.Substring(0, 1); }
+            set { }
+        }
+
+        public string OnlineStatus
+        {
+            get
+            {
+                if (Online)
+                    return "Online";
+                return "Offline";
+            }
             set { }
         }
 

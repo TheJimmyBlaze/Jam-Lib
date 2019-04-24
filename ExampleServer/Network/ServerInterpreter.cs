@@ -19,19 +19,16 @@ namespace ExampleServer.Network
         {
             switch (packet.Header.DataType)
             {
-                case PlainTextImperative.DATA_TYPE:
-                    WritePlainTextToConsole(packet);
-                    break;
                 case RegisterAccountRequest.DATA_TYPE:
                     RegisterAccount(serverConnection, packet);
                     break;
+                case PlainTextImperative.DATA_TYPE:
+                    WritePlainTextToConsole(packet);
+                    break;
+                case GetAccountsRequest.DATA_TYPE:
+                    GetRegisteredAccounts(serverConnection);
+                    break;
             }
-        }
-
-        private static void WritePlainTextToConsole(JamPacket packet)
-        {
-            PlainTextImperative plainText = new PlainTextImperative(packet.Data);
-            Console.WriteLine("[{0}]: {1}", packet.Header.Sender, plainText.Text);
         }
 
         private static void RegisterAccount(JamServerConnection serverConnection, JamPacket packet)
@@ -61,6 +58,33 @@ namespace ExampleServer.Network
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterAccountResponse.DATA_TYPE, response.GetBytes());
             serverConnection.Send(responsePacket);
+        }
+
+        private static void WritePlainTextToConsole(JamPacket packet)
+        {
+            PlainTextImperative plainText = new PlainTextImperative(packet.Data);
+            Console.WriteLine("[{0}]: {1}", packet.Header.Sender, plainText.Text);
+        }
+
+        private static void GetRegisteredAccounts(JamServerConnection serverConnection)
+        {
+            using (JamServerEntities dbContext = new JamServerEntities())
+            {
+                List<Tuple<Account, bool>> accounts = new List<Tuple<Account, bool>>();
+
+                foreach(Account account in dbContext.Accounts)
+                {
+                    bool online = serverConnection.Server.GetConnection(account.AccountID) != null;
+                    accounts.Add(new Tuple<Account, bool>(account, online));
+                }
+
+                GetAccountsResponse response = new GetAccountsResponse()
+                {
+                    Accounts = accounts
+                };
+                JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, GetAccountsResponse.DATA_TYPE, response.GetBytes());
+                serverConnection.Send(responsePacket);
+            }
         }
     }
 }

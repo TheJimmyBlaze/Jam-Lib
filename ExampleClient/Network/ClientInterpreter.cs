@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ExampleClient.Network
 {
-    internal static class ChatClientInterpreter
+    internal static class ClientInterpreter
     {
         internal static void Interpret(JamPacket packet)
         {
@@ -23,6 +23,12 @@ namespace ExampleClient.Network
                 case RegisterAccountResponse.DATA_TYPE:
                     HandleAccountRegistrationResponse(packet);
                     break;
+                case GetAccountsResponse.DATA_TYPE:
+                    HandleGetAccountsResponse(packet);
+                    break;
+                case AccountOnlineStatusChangedImperative.DATA_TYPE:
+                    HandleOnlineStatusChangedImperative(packet);
+                    break;
             }
         }
 
@@ -33,7 +39,7 @@ namespace ExampleClient.Network
                 MainWindow main = App.Current.MainWindow as MainWindow;
                 if (main.ViewFrame.Content is LoginPage page)
                 {
-                    page.HandleLoginResponse(packet);
+                    Task.Run(() => page.HandleLoginResponse(packet));
                 }
             });
         }
@@ -45,7 +51,31 @@ namespace ExampleClient.Network
                 MainWindow main = App.Current.MainWindow as MainWindow;
                 if (main.ViewFrame.Content is LoginPage page)
                 {
-                    page.HandleRegistrationResponse(packet);
+                    Task.Run(() => page.HandleRegistrationResponse(packet));
+                }
+            });
+        }
+
+        private static void HandleGetAccountsResponse(JamPacket packet)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                if (main.ViewFrame.Content is MessagePage page)
+                {
+                    Task.Run(() => page.HandleGetAccountsResponse(packet));
+                }
+            });
+        }
+
+        private static void HandleOnlineStatusChangedImperative(JamPacket packet)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                if (main.ViewFrame.Content is MessagePage page)
+                {
+                    Task.Run(() => page.HandleAccountOnlineStatusChangedImperative(packet));
                 }
             });
         }

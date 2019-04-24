@@ -25,11 +25,13 @@ namespace JamLib.Server
 
         public class ConnectionEventArgs: EventArgs
         {
+            public JamServerConnection ServerConnection { get; set; }
             public TcpClient Client { get; set; }
         }
 
         public class IdentifiedConnectionEventArgs: EventArgs
         {
+            public JamServerConnection ServerConnection { get; set; }
             public TcpClient Client { get; set; }
             public Account Account { get; set; }
         }
@@ -38,7 +40,7 @@ namespace JamLib.Server
         public EventHandler<MessageReceivedEventArgs> UndeliveredMessageReceivedEvent;
 
         public EventHandler<ConnectionEventArgs> ClientConnectedEvent;
-        public EventHandler<ConnectionEventArgs> ClientDisconnectedEvent;
+        public EventHandler<IdentifiedConnectionEventArgs> ClientDisconnectedEvent;
 
         public EventHandler<IdentifiedConnectionEventArgs> ClientIdentifiedEvent;
         public EventHandler<ConnectionEventArgs> ClientInvalidUsernameEvent;
@@ -61,7 +63,7 @@ namespace JamLib.Server
             ClientConnectedEvent?.Invoke(this, e);
         }
 
-        public void OnClientDisconnected(ConnectionEventArgs e)
+        public void OnClientDisconnected(IdentifiedConnectionEventArgs e)
         {
             ClientDisconnectedEvent?.Invoke(this, e);
         }
@@ -104,6 +106,11 @@ namespace JamLib.Server
         public JamServer(IHashFactory hashFactory)
         {
             HashFactory = hashFactory;
+        }
+
+        public List<JamServerConnection> GetAllConnections()
+        {
+            return connections;
         }
 
         public JamServerConnection GetConnection(Guid accountID)

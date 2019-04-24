@@ -210,24 +210,28 @@ namespace ExampleClient.View
             if (packet.Header.DataType != LoginResponse.DATA_TYPE)
                 return;
 
-            MainWindow main = App.Current.MainWindow as MainWindow;
-            LoginResponse response = new LoginResponse(packet.Data);
-
-            if (response.Result == LoginResponse.LoginResult.Good)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                MessagePage messagePage = new MessagePage();
-                main.Navigate(messagePage);
-            }
-            else
-            {
-                main.Client.Dispose();
-                LoginMessageText = INVALID_CREDENTIALS;
-                ClearPassword();
-            }
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                LoginResponse response = new LoginResponse(packet.Data);
 
-            AwaitingLoginResponse = false;
-            if (!WorkInProgress)
-                Cursor = Cursors.Arrow;
+                if (response.Result == LoginResponse.LoginResult.Good)
+                {
+                    main.Client.Account = response.Account;
+                    MessagePage messagePage = new MessagePage();
+                    main.Navigate(messagePage);
+                }
+                else
+                {
+                    main.Client.Dispose();
+                    LoginMessageText = INVALID_CREDENTIALS;
+                    ClearPassword();
+                }
+
+                AwaitingLoginResponse = false;
+                if (!WorkInProgress)
+                    Cursor = Cursors.Arrow;
+            });
         }
 
         public void HandleRegistrationResponse(JamPacket packet)
@@ -235,24 +239,27 @@ namespace ExampleClient.View
             if (packet.Header.DataType != RegisterAccountResponse.DATA_TYPE)
                 return;
 
-            MainWindow main = App.Current.MainWindow as MainWindow;
-            RegisterAccountResponse response = new RegisterAccountResponse(packet.Data);
-
-            if (response.Result == RegisterAccountResponse.AccountRegistrationResult.Good)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                MessagePage messagePage = new MessagePage();
-                main.Navigate(messagePage);
-            }
-            else
-            {
-                main.Client.Dispose();
-                LoginMessageText = USERNAME_IN_USE;
-                ClearPassword();
-            }
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                RegisterAccountResponse response = new RegisterAccountResponse(packet.Data);
 
-            AwaitingLoginResponse = false;
-            if (!WorkInProgress)
-                Cursor = Cursors.Arrow;
+                if (response.Result == RegisterAccountResponse.AccountRegistrationResult.Good)
+                {
+                    MessagePage messagePage = new MessagePage();
+                    main.Navigate(messagePage);
+                }
+                else
+                {
+                    main.Client.Dispose();
+                    LoginMessageText = USERNAME_IN_USE;
+                    ClearPassword();
+                }
+
+                AwaitingLoginResponse = false;
+                if (!WorkInProgress)
+                    Cursor = Cursors.Arrow;
+            });
         }
 
         private void LoadLoginSettings()

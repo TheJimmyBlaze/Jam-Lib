@@ -44,11 +44,11 @@ namespace JamLib.Client
 
         private readonly ConcurrentQueue<JamPacket> packetSendQueue = new ConcurrentQueue<JamPacket>();
 
-        public Account Account { get; private set; }
+        public Account Account { get; set; }
 
         public bool IsConnected
         {
-            get { return stream.CanWrite && stream.CanRead; }
+            get { return stream != null && stream.CanWrite && stream.CanRead; }
         }
         
         protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)

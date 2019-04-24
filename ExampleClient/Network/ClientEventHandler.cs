@@ -14,14 +14,15 @@ namespace ExampleClient.Network
         {
             App.Current.Dispatcher.Invoke(() =>
             {
-                MainWindow mainWindow = App.Current.MainWindow as MainWindow;
-                mainWindow.Navigate(new LoginPage());
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                if (!(main.ViewFrame.Content is LoginPage))
+                    main.Navigate(new LoginPage());
             });
         }
 
         internal static void OnMessageReceived(object sender, JamClient.MessageReceivedEventArgs e)
         {
-            ChatClientInterpreter.Interpret(e.Packet);
+            ClientInterpreter.Interpret(e.Packet);
         }
     }
 }

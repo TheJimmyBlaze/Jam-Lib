@@ -52,6 +52,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Network\Data\AccountOnlineStatusChangedImperative.cs" />
+    <Compile Include="Network\Data\GetAccountsRequest.cs" />
+    <Compile Include="Network\Data\GetAccountsResponse.cs" />
     <Compile Include="Network\Data\RegisterAccountRequest.cs" />
     <Compile Include="Network\Data\RegisterAccountResponse.cs" />
     <Compile Include="Network\ServerInterpreter.cs" />

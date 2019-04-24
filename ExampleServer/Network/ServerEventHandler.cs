@@ -1,4 +1,6 @@
-﻿using JamLib.Server;
+﻿using ExampleServer.Network.Data;
+using JamLib.Packet;
+using JamLib.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,14 +26,37 @@ namespace ExampleServer.Network
             Console.WriteLine("Client: {0} connected.", e.Client.Client.RemoteEndPoint);
         }
 
-        internal static void OnClientDisconnect(object sender, JamServer.ConnectionEventArgs e)
+        internal static void OnClientDisconnect(object sender, JamServer.IdentifiedConnectionEventArgs e)
         {
             Console.WriteLine("Client: {0} disconnected.", e.Client.Client.RemoteEndPoint);
+
+            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative()
+            {
+                Account = e.Account,
+                Online = false
+            };
+
+            JamPacket imperativePacket = new JamPacket(Guid.Empty, Guid.Empty, AccountOnlineStatusChangedImperative.DATA_TYPE, imperative.GetBytes());
+            foreach(JamServerConnection connection in e.ServerConnection.Server.GetAllConnections()){
+                connection.Send(imperativePacket);
+            }
         }
 
         internal static void OnClientIdentified(object sender, JamServer.IdentifiedConnectionEventArgs e)
         {
             Console.WriteLine("Client: {0} identified as: {1} - {2}", e.Client.Client.RemoteEndPoint, e.Account.AccountID, e.Account.Username);
+
+            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative()
+            {
+                Account = e.Account,
+                Online = true
+            };
+
+            JamPacket imperativePacket = new JamPacket(Guid.Empty, Guid.Empty, AccountOnlineStatusChangedImperative.DATA_TYPE, imperative.GetBytes());
+            foreach(JamServerConnection connection in e.ServerConnection.Server.GetAllConnections())
+            {
+                connection.Send(imperativePacket);
+            }
         }
 
         internal static void OnClientInvalidUsername(object sender, JamServer.ConnectionEventArgs e)

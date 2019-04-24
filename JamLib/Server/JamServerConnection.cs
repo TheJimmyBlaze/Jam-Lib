@@ -39,12 +39,12 @@ namespace JamLib.Server
             Task.Run(() => SendPacketsFromQueue());
             Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
 
-            Server.OnClientConnected(new JamServer.ConnectionEventArgs() { Client = Client });
+            Server.OnClientConnected(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
         }
         
         public void Dispose()
         {
-            Server.OnClientDisconnected(new JamServer.ConnectionEventArgs() { Client = Client });
+            Server.OnClientDisconnected(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, Client = Client, Account = Account });
 
             alive = false;
             stream.Close();
@@ -64,12 +64,12 @@ namespace JamLib.Server
             try
             {
                 Account = AccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
-                Server.OnClientIdentified(new JamServer.IdentifiedConnectionEventArgs() { Client = Client, Account = Account });
+                Server.OnClientIdentified(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, Client = Client, Account = Account });
 
                 JamServerConnection existingConnection = Server.GetConnection(Account.AccountID);
                 if (existingConnection != null)
                 {
-                    Server.OnClientConnectedElsewhere(new JamServer.IdentifiedConnectionEventArgs() { Client = existingConnection.Client, Account = existingConnection.Account });
+                    Server.OnClientConnectedElsewhere(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, Client = existingConnection.Client, Account = existingConnection.Account });
                     existingConnection.Dispose();
                 }
 
@@ -84,12 +84,12 @@ namespace JamLib.Server
             catch (AccountFactory.InvalidUsernameException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadUsername };
-                Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { Client = Client });
+                Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
             }
             catch (AccountFactory.InvalidAccessCodeException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadPassword };
-                Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { Client = Client });
+                Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
             }
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
