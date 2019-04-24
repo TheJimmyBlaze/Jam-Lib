@@ -17,11 +17,19 @@ namespace JamLib.Client
 {
     public class JamClient: IDisposable
     {
-        public EventHandler<MessageReceivedEventArgs> MessageReceived;
+        #region Event Handlers
         public class MessageReceivedEventArgs: EventArgs
         {
             public JamPacket Packet { get; set; }
         }
+
+        public EventHandler<MessageReceivedEventArgs> MessageReceivedEvent;
+
+        public void OnMessageReceived(MessageReceivedEventArgs args)
+        {
+            MessageReceivedEvent?.Invoke(this, args);
+        }
+        #endregion
 
         private readonly AutoResetEvent connectionCompleted = new AutoResetEvent(false);
 
@@ -142,11 +150,6 @@ namespace JamLib.Client
                 JamPacket packet = JamPacket.Receive(stream);
                 InternalClientInterpreter.Interpret(this, packet);
             }
-        }
-
-        public void OnMessageReceived(MessageReceivedEventArgs args)
-        {
-            MessageReceived?.Invoke(this, args);
         }
     }
 }

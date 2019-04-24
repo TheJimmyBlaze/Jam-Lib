@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExampleServer
+namespace ExampleServer.Network
 {
-    internal static class ChatServerInterpreter
+    internal static class ServerInterpreter
     {
         internal static void Interpret(JamServerConnection serverConnection, JamPacket packet)
         {

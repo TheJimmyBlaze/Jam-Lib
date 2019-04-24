@@ -1,4 +1,5 @@
-﻿using JamLib.Database;
+﻿using ExampleServer.Network;
+using JamLib.Database;
 using JamLib.Domain;
 using JamLib.Domain.Cryptography;
 using JamLib.Packet;
@@ -35,7 +36,17 @@ namespace ExampleServer
 
             Console.WriteLine("Starting server...");
             Server = new JamServer(hashFactory);
-            Server.MessageReceived += OnMessageReceived;
+
+            Server.MessageReceivedEvent += ServerEventHandler.OnMessageReceived;
+
+            Server.ClientConnectedEvent += ServerEventHandler.OnClientConnected;
+            Server.ClientDisconnectedEvent += ServerEventHandler.OnClientDisconnect;
+
+            Server.ClientIdentifiedEvent += ServerEventHandler.OnClientIdentified;
+            Server.ClientInvalidUsernameEvent += ServerEventHandler.OnClientInvalidUsername;
+            Server.ClientInvalidPasswordEvent += ServerEventHandler.OnClientInvalidPassword;
+
+            Server.ClientConnectedElsewhereEvent += ServerEventHandler.OnClientConnectedElsewhere;
             
             Server.Start(port, certificatePath, certificatePassword);
 
@@ -96,11 +107,6 @@ namespace ExampleServer
             Sha256HashFactory hashFactory = new Sha256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
 
             return hashFactory;
-        }
-
-        private static void OnMessageReceived(object sender, JamServer.MessageReceivedEventArgs args)
-        {
-            ChatServerInterpreter.Interpret(args.ServerConnection, args.Packet);
         }
     }
 }

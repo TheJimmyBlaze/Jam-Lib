@@ -31,21 +31,15 @@ namespace ExampleClient
             InitializeComponent();
 
             Client = new JamClient();
-            Client.MessageReceived += OnMessageReceived;
+            Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
 
-            //LoginPage loginPage = new LoginPage();
-            MessagePage test = new MessagePage();
-            Navigate(test);
+            LoginPage loginPage = new LoginPage();
+            Navigate(loginPage);
         }
 
         public void Navigate(Page page)
         {
             ViewFrame.Navigate(page);
-        }
-
-        private void OnMessageReceived(object sender, JamClient.MessageReceivedEventArgs args)
-        {
-            ChatClientInterpreter.Interpret(args.Packet);
         }
     }
 }

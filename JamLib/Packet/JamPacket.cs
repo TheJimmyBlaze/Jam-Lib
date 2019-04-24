@@ -116,21 +116,27 @@ namespace JamLib.Packet
                 state.Stream.BeginRead(state.Packet.Data, 0, state.Packet.Header.DataLength, ReceiveDataCallback, state);
             }
             catch (IOException) { }
+            catch (ObjectDisposedException) { }
         }
 
         private static void ReceiveDataCallback(IAsyncResult result)
         {
-            ReceiveState state = (ReceiveState)result.AsyncState;
-            state.BytesRead += state.Stream.EndRead(result);
-            int bytesRequired = state.Packet.Header.DataLength;
-
-            if (state.BytesRead != bytesRequired)
+            try
             {
-                state.Stream.BeginRead(state.Packet.Data, state.BytesRead, state.Packet.Header.DataLength - state.BytesRead, ReceiveDataCallback, state);
-                return;
-            }
+                ReceiveState state = (ReceiveState)result.AsyncState;
+                state.BytesRead += state.Stream.EndRead(result);
+                int bytesRequired = state.Packet.Header.DataLength;
 
-            state.ReceiveCompleted.Set();
+                if (state.BytesRead != bytesRequired)
+                {
+                    state.Stream.BeginRead(state.Packet.Data, state.BytesRead, state.Packet.Header.DataLength - state.BytesRead, ReceiveDataCallback, state);
+                    return;
+                }
+
+                state.ReceiveCompleted.Set();
+            }
+            catch (IOException) { }
+            catch (ObjectDisposedException) { }
         }
     }
 }

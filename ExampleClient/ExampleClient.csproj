@@ -62,6 +62,7 @@
     <Compile Include="Converter\NotConverter.cs" />
     <Compile Include="Domain\DisplayableAccount.cs" />
     <Compile Include="Network\ChatClientInterpreter.cs" />
+    <Compile Include="Network\ClientEventHandler.cs" />
     <Compile Include="View\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>

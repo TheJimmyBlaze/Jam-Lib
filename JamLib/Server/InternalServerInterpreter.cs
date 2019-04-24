@@ -16,12 +16,7 @@ namespace JamLib.Server
                     serverConnection.Ping(packet);
                     break;
                 default:
-                    JamServer.MessageReceivedEventArgs args = new JamServer.MessageReceivedEventArgs()
-                    {
-                        ServerConnection = serverConnection,
-                        Packet = packet
-                    };
-                    serverConnection.Server.OnMessageReceived(args);
+                    serverConnection.Server.OnMessageReceived(new JamServer.MessageReceivedEventArgs() { ServerConnection = serverConnection, Packet = packet });
                     break;
             }
         }

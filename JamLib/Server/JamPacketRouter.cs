@@ -23,12 +23,7 @@ namespace JamLib.Server
             JamServerConnection recipientConnection = server.GetConnection(recipient);
             if (recipientConnection == null)
             {
-                JamServer.MessageReceivedEventArgs args = new JamServer.MessageReceivedEventArgs()
-                {
-                    ServerConnection = serverConnection,
-                    Packet = packet
-                };
-                server.OnUndelieveredMessageReceived(args);
+                server.OnUndelieveredMessageReceived(new JamServer.MessageReceivedEventArgs() { ServerConnection = serverConnection, Packet = packet });
             }
             else
                 recipientConnection.Send(packet);   

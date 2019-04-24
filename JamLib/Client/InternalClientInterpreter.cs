@@ -18,11 +18,7 @@ namespace JamLib.Client
                     client.Ping(packet);
                     break;
                 default:
-                    JamClient.MessageReceivedEventArgs args = new JamClient.MessageReceivedEventArgs()
-                    {
-                        Packet = packet
-                    };
-                    client.OnMessageReceived(args);
+                    client.OnMessageReceived(new JamClient.MessageReceivedEventArgs() { Packet = packet });
                     break;
             }
         }

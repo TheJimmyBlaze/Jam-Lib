@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace JamLib.Server
     {
         public readonly JamServer Server;
 
+        public readonly TcpClient Client;
         private readonly SslStream stream;
         private bool alive;
 
@@ -23,12 +25,12 @@ namespace JamLib.Server
 
         public Account Account { get; private set; }
 
-        public JamServerConnection(SslStream stream, JamServer server)
+        public JamServerConnection(TcpClient client, SslStream stream, JamServer server)
         {
             const int DISCONNECT_POLL_FREQUENCY = 500;
 
             Server = server;
-
+            Client = client;
             this.stream = stream;
             alive = true;
 
@@ -36,10 +38,14 @@ namespace JamLib.Server
 
             Task.Run(() => SendPacketsFromQueue());
             Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
+
+            Server.OnClientConnected(new JamServer.ConnectionEventArgs() { Client = Client });
         }
         
         public void Dispose()
         {
+            Server.OnClientDisconnected(new JamServer.ConnectionEventArgs() { Client = Client });
+
             alive = false;
             stream.Close();
             
@@ -58,6 +64,14 @@ namespace JamLib.Server
             try
             {
                 Account = AccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
+                Server.OnClientIdentified(new JamServer.IdentifiedConnectionEventArgs() { Client = Client, Account = Account });
+
+                JamServerConnection existingConnection = Server.GetConnection(Account.AccountID);
+                if (existingConnection != null)
+                {
+                    Server.OnClientConnectedElsewhere(new JamServer.IdentifiedConnectionEventArgs() { Client = existingConnection.Client, Account = existingConnection.Account });
+                    existingConnection.Dispose();
+                }
 
                 response = new LoginResponse()
                 {
@@ -70,10 +84,12 @@ namespace JamLib.Server
             catch (AccountFactory.InvalidUsernameException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadUsername };
+                Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { Client = Client });
             }
             catch (AccountFactory.InvalidAccessCodeException)
             {
                 response = new LoginResponse() { Result = LoginResponse.LoginResult.BadPassword };
+                Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { Client = Client });
             }
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
