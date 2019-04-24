@@ -9,6 +9,7 @@
     <Grid>
         <Frame 
             x:Name="ViewFrame"
+            Focusable="False"
             NavigationUIVisibility="Hidden"
             Source="\View\Loadingpage.xaml"/>
     </Grid>

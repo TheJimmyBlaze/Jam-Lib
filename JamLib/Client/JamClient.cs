@@ -24,10 +24,16 @@ namespace JamLib.Client
         }
 
         public EventHandler<MessageReceivedEventArgs> MessageReceivedEvent;
+        public EventHandler ClientDisposedEvent;
 
-        public void OnMessageReceived(MessageReceivedEventArgs args)
+        public void OnMessageReceived(MessageReceivedEventArgs e)
         {
-            MessageReceivedEvent?.Invoke(this, args);
+            MessageReceivedEvent?.Invoke(this, e);
+        }
+
+        public void OnClientDisposed(EventArgs e)
+        {
+            ClientDisposedEvent?.Invoke(this, e);
         }
         #endregion
 
@@ -82,6 +88,7 @@ namespace JamLib.Client
         {
             alive = false;
             stream.Close();
+            OnClientDisposed(null);
         }
 
         public void Login(string username, string password)

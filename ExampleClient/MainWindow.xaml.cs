@@ -31,6 +31,7 @@ namespace ExampleClient
             InitializeComponent();
 
             Client = new JamClient();
+            Client.ClientDisposedEvent += ClientEventHandler.OnClientDisposed;
             Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
 
             LoginPage loginPage = new LoginPage();

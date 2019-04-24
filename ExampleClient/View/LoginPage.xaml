@@ -59,6 +59,7 @@
                                 Address
                             </Label>
                             <TextBox
+                                x:Name="AddressTextBox"
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 VerticalContentAlignment="Center"
@@ -74,6 +75,7 @@
                                 Port
                             </Label>
                             <TextBox
+                                x:Name="PortTextBox"
                                 Grid.Row="1"
                                 Grid.Column="1"
                                 VerticalContentAlignment="Center"
@@ -109,6 +111,7 @@
                                 Username
                             </Label>
                             <TextBox
+                                x:Name="UsernameTextBox"
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 VerticalContentAlignment="Center"
@@ -173,6 +176,7 @@
                         TextAlignment="Center">                     
                         <Hyperlink 
                             Foreground="Gray"
+                            Focusable="False"
                             NavigateUri="https://github.com/TheJimmyBlaze/JamLib"
                             RequestNavigate="Hyperlink_RequestNavigate">
                             www.github.com/TheJimmyBlaze/JamLib

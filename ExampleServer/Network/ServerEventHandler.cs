@@ -9,44 +9,44 @@ namespace ExampleServer.Network
 {
     internal static class ServerEventHandler
     {
-        internal static void OnMessageReceived(object sender, JamServer.MessageReceivedEventArgs args)
+        internal static void OnMessageReceived(object sender, JamServer.MessageReceivedEventArgs e)
         {
-            ServerInterpreter.Interpret(args.ServerConnection, args.Packet);
+            ServerInterpreter.Interpret(e.ServerConnection, e.Packet);
         }
 
-        internal static void OnUndeliveredMessageReceived(object sender, JamServer.MessageReceivedEventArgs args)
+        internal static void OnUndeliveredMessageReceived(object sender, JamServer.MessageReceivedEventArgs e)
         {
-            Console.WriteLine("Received undeliverable message. Intended recipient: {0}, data type: {1}", args.Packet.Header.Receipient, args.Packet.Header.DataType);
+            Console.WriteLine("Received undeliverable message. Intended recipient: {0}, data type: {1}", e.Packet.Header.Receipient, e.Packet.Header.DataType);
         }
 
-        internal static void OnClientConnected(object sender, JamServer.ConnectionEventArgs args)
+        internal static void OnClientConnected(object sender, JamServer.ConnectionEventArgs e)
         {
-            Console.WriteLine("Client: {0} connected.", args.Client.Client.RemoteEndPoint);
+            Console.WriteLine("Client: {0} connected.", e.Client.Client.RemoteEndPoint);
         }
 
-        internal static void OnClientDisconnect(object sender, JamServer.ConnectionEventArgs args)
+        internal static void OnClientDisconnect(object sender, JamServer.ConnectionEventArgs e)
         {
-            Console.WriteLine("Client: {0} disconnected.", args.Client.Client.RemoteEndPoint);
+            Console.WriteLine("Client: {0} disconnected.", e.Client.Client.RemoteEndPoint);
         }
 
-        internal static void OnClientIdentified(object sender, JamServer.IdentifiedConnectionEventArgs args)
+        internal static void OnClientIdentified(object sender, JamServer.IdentifiedConnectionEventArgs e)
         {
-            Console.WriteLine("Client: {0} identified as: {1} - {2}", args.Client.Client.RemoteEndPoint, args.Account.AccountID, args.Account.Username);
+            Console.WriteLine("Client: {0} identified as: {1} - {2}", e.Client.Client.RemoteEndPoint, e.Account.AccountID, e.Account.Username);
         }
 
-        internal static void OnClientInvalidUsername(object sender, JamServer.ConnectionEventArgs args)
+        internal static void OnClientInvalidUsername(object sender, JamServer.ConnectionEventArgs e)
         {
-            Console.WriteLine("Client: {0} provided an invalid username.", args.Client.Client.RemoteEndPoint);
+            Console.WriteLine("Client: {0} provided an invalid username.", e.Client.Client.RemoteEndPoint);
         }
 
-        internal static void OnClientInvalidPassword(object sender, JamServer.ConnectionEventArgs args)
+        internal static void OnClientInvalidPassword(object sender, JamServer.ConnectionEventArgs e)
         {
-            Console.WriteLine("Client: {0} provided an invalid password.", args.Client.Client.RemoteEndPoint);
+            Console.WriteLine("Client: {0} provided an invalid password.", e.Client.Client.RemoteEndPoint);
         }
 
-        internal static void OnClientConnectedElsewhere(object sender, JamServer.IdentifiedConnectionEventArgs args)
+        internal static void OnClientConnectedElsewhere(object sender, JamServer.IdentifiedConnectionEventArgs e)
         {
-            Console.WriteLine("Client: {0} has connected elsewhere, closing existing connection...", args.Client.Client.RemoteEndPoint);
+            Console.WriteLine("Client: {0} has connected elsewhere, closing existing connection...", e.Client.Client.RemoteEndPoint);
         }
     }
 }

@@ -30,7 +30,6 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="32"/>
-                    <RowDefinition Height="32"/>
                 </Grid.RowDefinitions>
 
                 <Grid
@@ -92,7 +91,7 @@
                         Grid.Row="1"
                         HorizontalAlignment="Stretch"
                         ItemsSource="{Binding Accounts}">
-                        
+
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border>
@@ -102,7 +101,7 @@
                                             <Setter
                                                 Property="BorderThickness"
                                                 Value="1"/>
-                                            
+
                                             <Style.Triggers>
                                                 <Trigger
                                                     Property="IsMouseOver"
@@ -110,7 +109,7 @@
                                                     <Setter
                                                         Property="Background"
                                                         Value="#BEE6FD"/>
-                                                    
+
                                                     <Setter
                                                         Property="BorderBrush"
                                                         Value="#3C7FB1"/>
@@ -165,26 +164,20 @@
                                     </Grid>
                                 </Border>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>                        
+                        </ItemsControl.ItemTemplate>
                     </ItemsControl>
                     <Separator
                         Grid.Row="2"/>
                 </Grid>
-
+                
                 <Button
                     Grid.Row="2"
-                    Margin="2"
-                    Width="200">
-                    Settings
-                </Button>
-
-                <Button
-                    Grid.Row="3"
                     Margin="2"
                     Width="200"
                     Background="IndianRed"
                     BorderBrush="DarkRed"
-                    Foreground="WhiteSmoke">
+                    Foreground="WhiteSmoke"
+                    Click="Logout">
                     Logout
                 </Button>
             </Grid>

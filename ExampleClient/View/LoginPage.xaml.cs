@@ -138,10 +138,14 @@ namespace ExampleClient.View
         {
             InitializeComponent();
             DataContext = this;
+
+            LoadLoginSettings();
+            FocusFirstEmptyLoginCredential();
         }
 
         private void Login(object sender, RoutedEventArgs e)
         {
+            SaveLoginSettings();
             LoginMessageText = string.Empty;
             AwaitingLoginResponse = true;
             Cursor = Cursors.Wait;
@@ -169,6 +173,7 @@ namespace ExampleClient.View
 
         private void Register(object sender, RoutedEventArgs e)
         {
+            SaveLoginSettings();
             LoginMessageText = string.Empty;
             AwaitingLoginResponse = true;
             Cursor = Cursors.Wait;
@@ -250,6 +255,34 @@ namespace ExampleClient.View
                 Cursor = Cursors.Arrow;
         }
 
+        private void LoadLoginSettings()
+        {
+            Address = Properties.Settings.Default.IPAddress;
+            Port = Properties.Settings.Default.Port.ToString();
+            Username = Properties.Settings.Default.Username;
+        }
+
+        private void SaveLoginSettings()
+        {
+            Properties.Settings.Default.IPAddress = Address;
+            Properties.Settings.Default.Port = port;
+            Properties.Settings.Default.Username = Username;
+
+            Properties.Settings.Default.Save();
+        }
+
+        private void FocusFirstEmptyLoginCredential()
+        {
+            if (Address == string.Empty)
+                AddressTextBox.Focus();
+            else if (Port == string.Empty)
+                PortTextBox.Focus();
+            else if (Username == string.Empty)
+                UsernameTextBox.Focus();
+            else
+                PasswordBox.Focus();
+        }
+
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
@@ -276,7 +309,7 @@ namespace ExampleClient.View
 
         public void NotifyPropertyChanged(string name = "")
         {
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

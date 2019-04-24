@@ -104,7 +104,13 @@ namespace ExampleClient.View
 
         public void NotifyPropertyChanged(string name = "")
         {
-            PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void Logout(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = App.Current.MainWindow as MainWindow;
+            mainWindow.Client.Dispose();
         }
     }
 }

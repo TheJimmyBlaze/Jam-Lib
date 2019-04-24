@@ -1,4 +1,5 @@
-﻿using JamLib.Client;
+﻿using ExampleClient.View;
+using JamLib.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,18 @@ namespace ExampleClient.Network
 {
     internal static class ClientEventHandler
     {
-
-        internal static void OnMessageReceived(object sender, JamClient.MessageReceivedEventArgs args)
+        internal static void OnClientDisposed(object sender, EventArgs e)
         {
-            ChatClientInterpreter.Interpret(args.Packet);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                MainWindow mainWindow = App.Current.MainWindow as MainWindow;
+                mainWindow.Navigate(new LoginPage());
+            });
+        }
+
+        internal static void OnMessageReceived(object sender, JamClient.MessageReceivedEventArgs e)
+        {
+            ChatClientInterpreter.Interpret(e.Packet);
         }
     }
 }

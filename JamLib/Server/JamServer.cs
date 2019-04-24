@@ -46,44 +46,44 @@ namespace JamLib.Server
 
         public EventHandler<IdentifiedConnectionEventArgs> ClientConnectedElsewhereEvent;
 
-        public void OnMessageReceived(MessageReceivedEventArgs args)
+        public void OnMessageReceived(MessageReceivedEventArgs e)
         {
-            MessageReceivedEvent?.Invoke(this, args);
+            MessageReceivedEvent?.Invoke(this, e);
         }
 
-        public void OnUndelieveredMessageReceived(MessageReceivedEventArgs args)
+        public void OnUndelieveredMessageReceived(MessageReceivedEventArgs e)
         {
-            UndeliveredMessageReceivedEvent?.Invoke(this, args);
+            UndeliveredMessageReceivedEvent?.Invoke(this, e);
         }
 
-        public void OnClientConnected(ConnectionEventArgs args)
+        public void OnClientConnected(ConnectionEventArgs e)
         {
-            ClientConnectedEvent?.Invoke(this, args);
+            ClientConnectedEvent?.Invoke(this, e);
         }
 
-        public void OnClientDisconnected(ConnectionEventArgs args)
+        public void OnClientDisconnected(ConnectionEventArgs e)
         {
-            ClientDisconnectedEvent?.Invoke(this, args);
+            ClientDisconnectedEvent?.Invoke(this, e);
         }
 
-        public void OnClientIdentified(IdentifiedConnectionEventArgs args)
+        public void OnClientIdentified(IdentifiedConnectionEventArgs e)
         {
-            ClientIdentifiedEvent?.Invoke(this, args);
+            ClientIdentifiedEvent?.Invoke(this, e);
         }
 
-        public void OnClientInvalidUsername(ConnectionEventArgs args)
+        public void OnClientInvalidUsername(ConnectionEventArgs e)
         {
-            ClientInvalidUsernameEvent?.Invoke(this, args);
+            ClientInvalidUsernameEvent?.Invoke(this, e);
         }
 
-        public void OnClientInvalidPassword(ConnectionEventArgs args)
+        public void OnClientInvalidPassword(ConnectionEventArgs e)
         {
-            ClientInvalidPasswordEvent?.Invoke(this, args);
+            ClientInvalidPasswordEvent?.Invoke(this, e);
         }
 
-        public void OnClientConnectedElsewhere(IdentifiedConnectionEventArgs args)
+        public void OnClientConnectedElsewhere(IdentifiedConnectionEventArgs e)
         {
-            ClientConnectedElsewhereEvent?.Invoke(this, args);
+            ClientConnectedElsewhereEvent?.Invoke(this, e);
         }
         #endregion
 
