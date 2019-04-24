@@ -1,4 +1,5 @@
-﻿using JamLib.Client;
+﻿using ExampleServer.Network.Data;
+using JamLib.Client;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
@@ -30,6 +31,7 @@ namespace ExampleClient.View
 
         private const string INVALID_CREDENTIALS = "Invalid username or password";
         private const string SERVER_UNREACHABLE = "Connection attempt timeout";
+        private const string USERNAME_IN_USE = "Username already in use";
 
         #region Getters and Setters
 
@@ -165,6 +167,39 @@ namespace ExampleClient.View
             });
         }
 
+        private void Register(object sender, RoutedEventArgs e)
+        {
+            LoginMessageText = string.Empty;
+            AwaitingLoginResponse = true;
+            Cursor = Cursors.Wait;
+
+            MainWindow main = App.Current.MainWindow as MainWindow;
+            Task.Run(() =>
+            {
+                main.Client.Connect(address, port, CONNECT_TIMEOUT);
+                if (!main.Client.IsConnected)
+                {
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        main.Client.Dispose();
+                        loginMessageText = SERVER_UNREACHABLE;
+                        AwaitingLoginResponse = false;
+                        if (!WorkInProgress)
+                            Cursor = Cursors.Arrow;
+                    });
+                    return;
+                }
+
+                RegisterAccountRequest request = new RegisterAccountRequest()
+                {
+                    Username = username,
+                    Password = PasswordBox.Password
+                };
+                JamPacket requestPacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterAccountRequest.DATA_TYPE, request.GetBytes());
+                main.Client.Send(requestPacket);
+            });
+        }
+
         public void HandleLoginResponse(JamPacket packet)
         {
             if (packet.Header.DataType != LoginResponse.DATA_TYPE)
@@ -175,12 +210,39 @@ namespace ExampleClient.View
 
             if (response.Result == LoginResponse.LoginResult.Good)
             {
-                //TODO: proceed with login.
+                MessagePage messagePage = new MessagePage();
+                main.Navigate(messagePage);
             }
             else
             {
                 main.Client.Dispose();
                 LoginMessageText = INVALID_CREDENTIALS;
+                ClearPassword();
+            }
+
+            AwaitingLoginResponse = false;
+            if (!WorkInProgress)
+                Cursor = Cursors.Arrow;
+        }
+
+        public void HandleRegistrationResponse(JamPacket packet)
+        {
+            if (packet.Header.DataType != RegisterAccountResponse.DATA_TYPE)
+                return;
+
+            MainWindow main = App.Current.MainWindow as MainWindow;
+            RegisterAccountResponse response = new RegisterAccountResponse(packet.Data);
+
+            if (response.Result == RegisterAccountResponse.AccountRegistrationResult.Good)
+            {
+                MessagePage messagePage = new MessagePage();
+                main.Navigate(messagePage);
+            }
+            else
+            {
+                main.Client.Dispose();
+                LoginMessageText = USERNAME_IN_USE;
+                ClearPassword();
             }
 
             AwaitingLoginResponse = false;
@@ -208,6 +270,7 @@ namespace ExampleClient.View
         private void ClearPassword()
         {
             PasswordBox.Password = string.Empty;
+            PasswordBox.IsEnabled = true;
             PasswordBox.Focus();
         }
 

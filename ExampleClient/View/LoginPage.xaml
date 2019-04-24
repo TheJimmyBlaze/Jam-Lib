@@ -93,6 +93,7 @@
                                 <RowDefinition Height="32"/>
                                 <RowDefinition Height="18"/>
                                 <RowDefinition Height="32"/>
+                                <RowDefinition Height="32"/>
                             </Grid.RowDefinitions>
 
                             <Grid.ColumnDefinitions>
@@ -148,6 +149,15 @@
                                 Click="Login"
                                 IsEnabled="{Binding LoginEnabled}">
                                 Login
+                            </Button>
+
+                            <Button
+                                Grid.Row="4"
+                                Grid.ColumnSpan="2"
+                                Margin="2"
+                                Click="Register"
+                                IsEnabled="{Binding LoginEnabled}">
+                                Register
                             </Button>
                         </Grid>
                     </GroupBox>

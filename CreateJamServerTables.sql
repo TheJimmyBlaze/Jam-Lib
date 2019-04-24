@@ -21,31 +21,3 @@ CREATE TABLE AccountAccessCode (
 	CONSTRAINT aacFKAccountID FOREIGN KEY (AccountID) REFERENCES Account (AccountID),
 	CONSTRAINT aacUniqClstAccountID UNIQUE CLUSTERED (AccountID)
 )
-
-CREATE TABLE Permission (
-	PermissionID UNIQUEIDENTIFIER NOT NULL,
-	LastUpdateUTC DATETIME NOT NULL,
-
-	PermissionName VARCHAR(32) NOT NULL,
-	PermissionDescription VARCHAR(256) NULL,
-	ParentPermissionID UNIQUEIDENTIFIER NOT NULL
-
-	CONSTRAINT permPKPermissionID PRIMARY KEY (PermissionID),
-	CONSTRAINT permFKParentPermissionID FOREIGN KEY (ParentPermissionID) REFERENCES Permission (PermissionID),
-	CONSTRAINT permUniqName UNIQUE (PermissionName)
-)
-
-CREATE TABLE AccountPermissionAssociation (
-	AccountPermissionID UNIQUEIDENTIFIER NOT NULL,
-	LastUpdateUTC DATETIME NOT NULL,
-
-	AccountID UNIQUEIDENTIFIER NOT NULL,
-	PermissionID UNIQUEIDENTIFIER NOT NULL
-
-	CONSTRAINT apaPKNClstAccountPermissionID PRIMARY KEY NONCLUSTERED (AccountPermissionID),
-	CONSTRAINT apaFKAccountID FOREIGN KEY (AccountID) REFERENCES Account (AccountID),
-	CONSTRAINT FapaKPermissionID FOREIGN KEY (PermissionID) REFERENCES Permission (PermissionID),
-	CONSTRAINT apaUniqAccountIDPermissionID UNIQUE (AccountID, PermissionID),
-	
-	INDEX IdxClstAccountID CLUSTERED (AccountID)
-)

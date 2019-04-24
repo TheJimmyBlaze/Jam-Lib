@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Network\Data\RegisterAccountRequest.cs" />
+    <Compile Include="Network\Data\RegisterAccountResponse.cs" />
     <Compile Include="Network\ServerInterpreter.cs" />
     <Compile Include="Domain\AccountFactory.cs" />
     <Compile Include="Network\ServerEventHandler.cs" />

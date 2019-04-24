@@ -124,6 +124,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExampleServer\ExampleServer.csproj">
+      <Project>{EC5F6301-7136-4D3A-B85C-29644762D805}</Project>
+      <Name>ExampleServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\JamLib\JamLib.csproj">
       <Project>{5AD42585-0F07-4F6C-A03B-52E4F3869279}</Project>
       <Name>JamLib</Name>

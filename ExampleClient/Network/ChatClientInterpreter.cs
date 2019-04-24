@@ -1,4 +1,5 @@
 ﻿using ExampleClient.View;
+using ExampleServer.Network.Data;
 using JamLib.Client;
 using JamLib.Packet;
 using JamLib.Packet.Data;
@@ -19,6 +20,9 @@ namespace ExampleClient.Network
                 case LoginResponse.DATA_TYPE:
                     HandleLoginResponse(packet);
                     break;
+                case RegisterAccountResponse.DATA_TYPE:
+                    HandleAccountRegistrationResponse(packet);
+                    break;
             }
         }
 
@@ -30,6 +34,18 @@ namespace ExampleClient.Network
                 if (main.ViewFrame.Content is LoginPage page)
                 {
                     page.HandleLoginResponse(packet);
+                }
+            });
+        }
+
+        private static void HandleAccountRegistrationResponse(JamPacket packet)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                if (main.ViewFrame.Content is LoginPage page)
+                {
+                    page.HandleRegistrationResponse(packet);
                 }
             });
         }
