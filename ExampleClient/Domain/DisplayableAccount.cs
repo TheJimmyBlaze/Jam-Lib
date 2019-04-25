@@ -37,6 +37,16 @@ namespace ExampleClient.Domain
             set { }
         }
 
+        public Brush OnlineColour
+        {
+            get
+            {
+                if (Online)
+                    return Brushes.Gray;
+                return Brushes.LightGray;
+            }
+        }
+
         public Brush Colour
         {
             get

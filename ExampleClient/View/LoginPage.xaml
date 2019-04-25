@@ -159,6 +159,7 @@
                                 Grid.ColumnSpan="2"
                                 Margin="2"
                                 Click="Register"
+                                IsTabStop="False"
                                 IsEnabled="{Binding LoginEnabled}">
                                 Register
                             </Button>
