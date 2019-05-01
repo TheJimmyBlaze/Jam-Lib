@@ -70,6 +70,7 @@ namespace ExampleServer.Network
         {
             using (JamServerEntities dbContext = new JamServerEntities())
             {
+                dbContext.Configuration.LazyLoadingEnabled = false;
                 List<Tuple<Account, bool>> accounts = new List<Tuple<Account, bool>>();
 
                 foreach(Account account in dbContext.Accounts)

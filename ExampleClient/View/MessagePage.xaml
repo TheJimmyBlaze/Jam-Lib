@@ -67,7 +67,7 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch">
                         <Label
-                            FontSize="24"
+                            FontSize="20"
                             Padding="0"
                             Foreground="White"
                             HorizontalContentAlignment="Center"
@@ -111,22 +111,13 @@
                                 <Border>
                                     <Border.Style>
                                         <Style TargetType="Border">
-
-                                            <Setter
-                                                Property="BorderThickness"
-                                                Value="1"/>
-
                                             <Style.Triggers>
                                                 <Trigger
                                                     Property="IsMouseOver"
                                                     Value="True">
                                                     <Setter
                                                         Property="Background"
-                                                        Value="#BEE6FD"/>
-
-                                                    <Setter
-                                                        Property="BorderBrush"
-                                                        Value="#3C7FB1"/>
+                                                        Value="White"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
@@ -153,7 +144,7 @@
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Stretch">
                                             <Label
-                                                FontSize="24"
+                                                FontSize="20"
                                                 Padding="0"
                                                 Foreground="White"
                                                 HorizontalContentAlignment="Center"
@@ -204,6 +195,99 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
+
+            <ItemsControl
+                Grid.Row="0"
+                Padding="0, 4"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                ItemsSource="{Binding SelectedMessageSession.Messages}">
+                
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label
+                                Grid.Row="0"
+                                Foreground="Gray"
+                                Padding="2, 4"
+                                Visibility="{Binding IsSystem, Converter={StaticResource CollapseWhenFalse}}"
+                                Content="{Binding Text}"/>
+
+                            <Grid
+                                Grid.Row="1"
+                                Margin="2, 4"
+                                Visibility="{Binding IsSystem, Converter={StaticResource CollapseWhenTrue}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="36"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border
+                                    Grid.Column="0"
+                                    VerticalAlignment="Top"
+                                    Height="36"
+                                    Width="36"
+                                    Background="{Binding Sender.Colour}"
+                                    Visibility="{Binding IsRemote, Converter={StaticResource CollapseWhenFalse}}">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="LightGray"/>
+                                    </Border.Effect>
+
+                                    <Label
+                                        FontSize="20"
+                                        Padding="0"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="{Binding Sender.Initial}"/>
+                                </Border>
+
+                                <Border
+                                    Grid.Column="1"
+                                    Background="WhiteSmoke"
+                                    Padding="12, 10"
+                                    Margin="12, 0"
+                                    VerticalAlignment="Top">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="LightGray"/>
+                                    </Border.Effect>
+
+                                    <TextBlock
+                                        TextWrapping="Wrap"
+                                        Foreground="DimGray"
+                                        Text="{Binding Text}"/>
+                                </Border>
+
+                                <Border
+                                    Grid.Column="2"
+                                    VerticalAlignment="Top"
+                                    Height="36"
+                                    Width="36"
+                                    Background="{Binding Sender.Colour}"
+                                    Visibility="{Binding IsLocal, Converter={StaticResource CollapseWhenFalse}}">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="LightGray"/>
+                                    </Border.Effect>
+
+                                    <Label
+                                        FontSize="20"
+                                        Padding="0"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="{Binding Sender.Initial}"/>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <Border
                 Grid.Row="1"

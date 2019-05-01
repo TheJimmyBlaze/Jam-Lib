@@ -14,12 +14,6 @@ namespace ExampleClient.Domain
         public Account Account { get; set; }
         public bool Online { get; set; }
 
-        public DisplayableAccount(Account account, bool online)
-        {
-            Account = account;
-            Online = online;
-        }
-
         public string Initial
         {
             get { return Account?.Username.Substring(0, 1); }
@@ -62,6 +56,12 @@ namespace ExampleClient.Domain
                 return new SolidColorBrush(Color.FromArgb(255, (byte)r, (byte)g, (byte)b));
             }
             set { }
+        }
+
+        public DisplayableAccount(Account account, bool online)
+        {
+            Account = account;
+            Online = online;
         }
     }
 }

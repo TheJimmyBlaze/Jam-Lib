@@ -51,7 +51,30 @@ namespace ExampleClient.View
             set { }
         }
 
-        private int unreadMessages = 0;
+        private MessageSession selectedMessageSession;
+        public MessageSession SelectedMessageSession
+        {
+            get { return selectedMessageSession; }
+            set
+            {
+                selectedMessageSession = value;
+                NotifyPropertyChanged(nameof(SelectedMessageSession));
+            }
+        }
+
+        private ObservableCollection<MessageSession> messageSessions;
+        public ObservableCollection<MessageSession> MessageSessions
+        {
+            get
+            {
+                if (messageSessions == null)
+                    messageSessions = new ObservableCollection<MessageSession>();
+                return messageSessions;
+            }
+            set { }
+        }
+
+        private int unreadMessages = 107;
         public int UnreadMessages
         {
             get { return unreadMessages; }
@@ -84,6 +107,25 @@ namespace ExampleClient.View
 
             LoggedInAccount = new DisplayableAccount(main.Client.Account, true);
             GetAccounts();
+
+            //TODO: remove this test code.
+            Account test = new Account()
+            {
+                Username = "Ding",
+                AccountID = Guid.NewGuid()
+            };
+
+            MessageSession testSession = new MessageSession(new DisplayableMessage(DisplayableMessage.MessageType.System, new DisplayableAccount(test, true), DateTime.UtcNow,
+                string.Format("Begining of message history with {0} for this session.", test.Username)));
+            testSession.Messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.Remote, new DisplayableAccount(test, true), DateTime.UtcNow,
+                "This is an example test message from a remote account. This message is very long, and artificially lengthened. I want this message to span multiple lines to test out the text wrapping functionality."));
+            testSession.Messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.Remote, new DisplayableAccount(test, true), DateTime.UtcNow,
+                "Here is another example message. This one is shorter."));
+            testSession.Messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.Local, LoggedInAccount, DateTime.UtcNow,
+                "This is a similar example message, this time from the local account."));
+
+            MessageSessions.Add(testSession);
+            SelectedMessageSession = MessageSessions[0];
         }
 
         private void Logout(object sender, RoutedEventArgs e)

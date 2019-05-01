@@ -61,6 +61,7 @@ namespace JamLib.Domain
                 if (account != null)
                 {
                     AccountAccessCode accessCode = dbContext.AccountAccessCodes.SingleOrDefault(x => x.AccountID == account.AccountID);
+                    account.AccountAccessCodes = null;
 
                     if (accessCode != null && hashFactory.ValidateString(password, accessCode.AccessCode))
                     {
