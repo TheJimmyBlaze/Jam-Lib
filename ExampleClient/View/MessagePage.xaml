@@ -48,7 +48,7 @@
 
                 <Grid
                     Grid.Row="0"
-                    Margin="2"
+                    Margin="10, 2"
                     HorizontalAlignment="Stretch">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="18"/>
@@ -92,7 +92,8 @@
                 </Grid>
 
                 <Grid
-                    Grid.Row="1">
+                    Grid.Row="1"
+                    Margin="2, 2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="*"/>
@@ -101,80 +102,76 @@
 
                     <Separator
                         Grid.Row="0"/>
-                    <ItemsControl
-                        Grid.Row="1"
-                        HorizontalAlignment="Stretch"
-                        ItemsSource="{Binding Source={StaticResource AccountsView}}">
+                    
+                    <ListView
+                    Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    SelectionMode="Single"
+                    SelectionChanged="ListView_SelectionChanged"
+                    ItemsSource="{Binding Source={StaticResource AccountsView}}">
 
-                        <ItemsControl.ItemTemplate>
+                        <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border>
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Style.Triggers>
-                                                <Trigger
-                                                    Property="IsMouseOver"
-                                                    Value="True">
-                                                    <Setter
-                                                        Property="Background"
-                                                        Value="White"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
+                                <Grid
+                                Margin="1"
+                                HorizontalAlignment="Stretch">
 
-                                    <Grid
-                                        Margin="1"
-                                        HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="18"/>
+                                        <RowDefinition Height="18"/>
+                                    </Grid.RowDefinitions>
 
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="18"/>
-                                            <RowDefinition Height="18"/>
-                                        </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="36"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
+                                    <Border
+                                    Grid.ColumnSpan="2"
+                                    Grid.RowSpan="2"
+                                    Background="SkyBlue"
+                                    Visibility="{Binding Selected, Converter={StaticResource CollapseWhenFalse}}"/>
 
-                                        <Border
-                                            Grid.Column="0"
-                                            Grid.RowSpan="2"
-                                            Background="{Binding Colour}"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch">
-                                            <Label
-                                                FontSize="20"
-                                                Padding="0"
-                                                Foreground="White"
-                                                HorizontalContentAlignment="Center"
-                                                VerticalContentAlignment="Center"
-                                                Content="{Binding Initial}"/>
-                                        </Border>
-
+                                    <Border
+                                    Grid.Column="0"
+                                    Grid.RowSpan="2"
+                                    Background="{Binding Colour}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
                                         <Label
-                                            Grid.Column="1"
-                                            Grid.Row="0"
-                                            VerticalContentAlignment="Center"
-                                            Padding="4, 0, 0, 0"
-                                            Content="{Binding Account.Username}"/>
+                                        FontSize="20"
+                                        Padding="0"
+                                        Foreground="White"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="{Binding Initial}"/>
+                                    </Border>
 
-                                        <Label
-                                            Grid.Column="1"
-                                            Grid.Row="1"
-                                            VerticalContentAlignment="Center"
-                                            Padding="4, 0, 0, 0"
-                                            Content="{Binding OnlineStatus}"
-                                            Foreground="{Binding OnlineColour}"/>
-                                    </Grid>
-                                </Border>
+                                    <Label
+                                    Grid.Column="1"
+                                    Grid.Row="0"
+                                    VerticalContentAlignment="Center"
+                                    Padding="4, 0, 0, 0"
+                                    Content="{Binding Account.Username}"/>
+
+                                    <Label
+                                    Grid.Column="1"
+                                    Grid.Row="1"
+                                    VerticalContentAlignment="Center"
+                                    Padding="4, 0, 0, 0"
+                                    Content="{Binding OnlineStatus}"
+                                    Foreground="{Binding OnlineColour}"/>
+                                </Grid>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
                     <Separator
                         Grid.Row="2"/>
                 </Grid>
-                
+
                 <Button
                     Grid.Row="2"
                     Margin="2"
@@ -201,7 +198,7 @@
                 Padding="0, 4"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                ItemsSource="{Binding SelectedMessageSession.Messages}">
+                ItemsSource="{Binding SelectedAccount.MessageSession.Messages}">
                 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

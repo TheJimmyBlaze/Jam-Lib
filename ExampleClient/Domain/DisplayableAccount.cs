@@ -14,6 +14,9 @@ namespace ExampleClient.Domain
         public Account Account { get; set; }
         public bool Online { get; set; }
 
+        public bool Selected { get; set; }
+        public MessageSession MessageSession { get; set; }
+
         public string Initial
         {
             get { return Account?.Username.Substring(0, 1); }

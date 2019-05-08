@@ -87,7 +87,7 @@ namespace JamLib.Client
         public void Dispose()
         {
             alive = false;
-            stream.Close();
+            stream?.Close();
             OnClientDisposed(null);
         }
 
