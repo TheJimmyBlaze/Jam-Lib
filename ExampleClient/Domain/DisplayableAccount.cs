@@ -1,6 +1,7 @@
 ﻿using JamLib.Database;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -15,7 +16,22 @@ namespace ExampleClient.Domain
         public bool Online { get; set; }
 
         public bool Selected { get; set; }
-        public MessageSession MessageSession { get; set; }
+
+        private ObservableCollection<DisplayableMessage> messages;
+        public ObservableCollection<DisplayableMessage> Messages
+        {
+            get
+            {
+                if (messages == null)
+                {
+                    messages = new ObservableCollection<DisplayableMessage>();
+                    messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.System, this, DateTime.UtcNow,
+                        string.Format("Begining of message history with {0} for this session.", Account.Username)));
+                }
+                return messages;
+            }
+            set { }
+        }
 
         public string Initial
         {

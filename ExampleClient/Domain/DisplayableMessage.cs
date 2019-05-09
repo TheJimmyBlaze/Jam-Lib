@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace ExampleClient.Domain
 {
@@ -38,7 +33,10 @@ namespace ExampleClient.Domain
             SendTimeUTC = sendTimeUTC;
             Text = text;
 
-            Seen = false;
+            if (Type == MessageType.Remote)
+                Seen = false;
+            else
+                Seen = true;
         }
     }
 }

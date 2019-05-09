@@ -29,6 +29,9 @@ namespace ExampleClient.Network
                 case AccountOnlineStatusChangedImperative.DATA_TYPE:
                     HandleOnlineStatusChangedImperative(packet);
                     break;
+                case SendMessageImperative.DATA_TYPE:
+                    HandleSendMessageImperative(packet);
+                    break;
             }
         }
 
@@ -76,6 +79,18 @@ namespace ExampleClient.Network
                 if (main.ViewFrame.Content is MessagePage page)
                 {
                     Task.Run(() => page.HandleAccountOnlineStatusChangedImperative(packet));
+                }
+            });
+        }
+
+        private static void HandleSendMessageImperative(JamPacket packet)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                if (main.ViewFrame.Content is MessagePage page)
+                {
+                    Task.Run(() => page.ReceiveMessage(packet));
                 }
             });
         }

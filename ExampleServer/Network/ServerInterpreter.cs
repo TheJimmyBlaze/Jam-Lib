@@ -73,7 +73,7 @@ namespace ExampleServer.Network
                 dbContext.Configuration.LazyLoadingEnabled = false;
                 List<Tuple<Account, bool>> accounts = new List<Tuple<Account, bool>>();
 
-                foreach(Account account in dbContext.Accounts)
+                foreach (Account account in dbContext.Accounts)
                 {
                     bool online = serverConnection.Server.GetConnection(account.AccountID) != null;
                     accounts.Add(new Tuple<Account, bool>(account, online));

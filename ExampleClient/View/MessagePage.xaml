@@ -88,7 +88,7 @@
                         VerticalContentAlignment="Center"
                         Padding="4, 0, 0, 0"
                         Foreground="Gray"
-                        Content="{Binding UnreadMessagesText}"/>
+                        Content="{Binding UnseenMessages}"/>
                 </Grid>
 
                 <Grid
@@ -109,7 +109,7 @@
                     Background="Transparent"
                     BorderThickness="0"
                     SelectionMode="Single"
-                    SelectionChanged="ListView_SelectionChanged"
+                    SelectedItem="{Binding SelectedAccount}"
                     ItemsSource="{Binding Source={StaticResource AccountsView}}">
 
                         <ListView.ItemTemplate>
@@ -193,102 +193,109 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <ItemsControl
-                Grid.Row="0"
-                Padding="0, 4"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Bottom"
-                ItemsSource="{Binding SelectedAccount.MessageSession.Messages}">
-                
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
+            <ScrollViewer
+                ScrollChanged="ScrollChanged"
+                VerticalScrollBarVisibility="Auto"
+                Padding="0, 0, 4, 0">
+                <ItemsControl
+                    Grid.Row="0"
+                    Padding="0, 4"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Bottom"
+                    ItemsSource="{Binding SelectedAccount.Messages}">
 
-                            <Label
-                                Grid.Row="0"
-                                Foreground="Gray"
-                                Padding="2, 4"
-                                Visibility="{Binding IsSystem, Converter={StaticResource CollapseWhenFalse}}"
-                                Content="{Binding Text}"/>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
 
-                            <Grid
-                                Grid.Row="1"
-                                Margin="2, 4"
-                                Visibility="{Binding IsSystem, Converter={StaticResource CollapseWhenTrue}}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="36"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="36"/>
-                                </Grid.ColumnDefinitions>
+                                <Label
+                                    Grid.Row="0"
+                                    Foreground="Gray"
+                                    Padding="2, 4"
+                                    Visibility="{Binding IsSystem, Converter={StaticResource CollapseWhenFalse}}"
+                                    Content="{Binding Text}"/>
 
-                                <Border
-                                    Grid.Column="0"
-                                    VerticalAlignment="Top"
-                                    Height="36"
-                                    Width="36"
-                                    Background="{Binding Sender.Colour}"
-                                    Visibility="{Binding IsRemote, Converter={StaticResource CollapseWhenFalse}}">
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="LightGray"/>
-                                    </Border.Effect>
+                                <Grid
+                                    Grid.Row="1"
+                                    Margin="2, 4"
+                                    Visibility="{Binding IsSystem, Converter={StaticResource CollapseWhenTrue}}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="36"/>
+                                    </Grid.ColumnDefinitions>
 
-                                    <Label
-                                        FontSize="20"
-                                        Padding="0"
-                                        Foreground="White"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Content="{Binding Sender.Initial}"/>
-                                </Border>
+                                    <Border
+                                        Grid.Column="0"
+                                        VerticalAlignment="Top"
+                                        Height="36"
+                                        Width="36"
+                                        Background="{Binding Sender.Colour}"
+                                        Visibility="{Binding IsRemote, Converter={StaticResource CollapseWhenFalse}}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="LightGray"/>
+                                        </Border.Effect>
 
-                                <Border
-                                    Grid.Column="1"
-                                    Background="WhiteSmoke"
-                                    Padding="12, 10"
-                                    Margin="12, 0"
-                                    VerticalAlignment="Top">
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="LightGray"/>
-                                    </Border.Effect>
+                                        <Label
+                                            FontSize="20"
+                                            Padding="0"
+                                            Foreground="White"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Content="{Binding Sender.Initial}"/>
+                                    </Border>
 
-                                    <TextBlock
-                                        TextWrapping="Wrap"
-                                        Foreground="DimGray"
-                                        Text="{Binding Text}"/>
-                                </Border>
+                                    <Border
+                                        Grid.Column="1"
+                                        Background="WhiteSmoke"
+                                        Padding="12, 10"
+                                        Margin="12, 0"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="{Binding Type, Converter={StaticResource MessageBubbleSide}}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="LightGray"/>
+                                        </Border.Effect>
 
-                                <Border
-                                    Grid.Column="2"
-                                    VerticalAlignment="Top"
-                                    Height="36"
-                                    Width="36"
-                                    Background="{Binding Sender.Colour}"
-                                    Visibility="{Binding IsLocal, Converter={StaticResource CollapseWhenFalse}}">
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="LightGray"/>
-                                    </Border.Effect>
+                                        <TextBlock
+                                            TextWrapping="Wrap"
+                                            Foreground="DimGray"
+                                            Text="{Binding Text}"/>
+                                    </Border>
 
-                                    <Label
-                                        FontSize="20"
-                                        Padding="0"
-                                        Foreground="White"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Content="{Binding Sender.Initial}"/>
-                                </Border>
+                                    <Border
+                                        Grid.Column="2"
+                                        VerticalAlignment="Top"
+                                        Height="36"
+                                        Width="36"
+                                        Background="{Binding Sender.Colour}"
+                                        Visibility="{Binding IsLocal, Converter={StaticResource CollapseWhenFalse}}">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="LightGray"/>
+                                        </Border.Effect>
+
+                                        <Label
+                                            FontSize="20"
+                                            Padding="0"
+                                            Foreground="White"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Content="{Binding Sender.Initial}"/>
+                                    </Border>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
             <Border
                 Grid.Row="1"
-                HorizontalAlignment="Stretch">
+                HorizontalAlignment="Stretch"
+                Margin="0, 4, 0, 0">
                 <Border.Effect>
                     <DropShadowEffect Color="LightGray"/>
                 </Border.Effect>
@@ -302,7 +309,9 @@
                     MaxHeight="128"
                     VerticalScrollBarVisibility="Auto"
                     Padding="6"
-                    IsEnabled="False"/>
+                    IsEnabled="{Binding CanSendMessage}"
+                    PreviewKeyDown="SendMessage"
+                    IsEnabledChanged="MessageBoxEnabledOrDisabled"/>
             </Border>
         </Grid>
     </Grid>

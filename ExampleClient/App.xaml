@@ -10,5 +10,7 @@
         <converter:CollapseWhenTrueConverter x:Key="CollapseWhenTrue"/>
         <converter:NotConverter x:Key="NotConverter"/>
 
+        <converter:MessageBubbleSideConverter x:Key="MessageBubbleSide"/>
+
     </Application.Resources>
 </Application>

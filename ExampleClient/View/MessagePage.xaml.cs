@@ -36,18 +36,15 @@ namespace ExampleClient.View
             {
                 selectedAccount = value;
 
-                //TODO: Remove this testing code.
-                MessageSession testSession = new MessageSession(new DisplayableMessage(DisplayableMessage.MessageType.System, new DisplayableAccount(selectedAccount.Account, true), DateTime.UtcNow,
-                    string.Format("Begining of message history with {0} for this session.", selectedAccount.Account.Username)));
-                testSession.Messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.Remote, new DisplayableAccount(selectedAccount.Account, true), DateTime.UtcNow,
-                    "This is an example test message from a remote account. This message is very long, and artificially lengthened. I want this message to span multiple lines to test out the text wrapping functionality."));
-                testSession.Messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.Remote, new DisplayableAccount(selectedAccount.Account, true), DateTime.UtcNow,
-                    "Here is another example message. This one is shorter."));
-                testSession.Messages.Add(new DisplayableMessage(DisplayableMessage.MessageType.Local, LoggedInAccount, DateTime.UtcNow,
-                    "This is a similar example message, this time from the local account."));
-                selectedAccount.MessageSession = testSession;
+                if (selectedAccount != null)
+                {
+                    foreach (DisplayableMessage message in selectedAccount.Messages)
+                        message.Seen = true;
+                }
 
                 NotifyPropertyChanged(nameof(SelectedAccount));
+                NotifyPropertyChanged(nameof(CanSendMessage));
+                NotifyPropertyChanged(nameof(UnseenMessages));
             }
         }
 
@@ -63,21 +60,28 @@ namespace ExampleClient.View
             set { }
         }
 
-        private int unreadMessages = 107;
-        public int UnreadMessages
+        public string UnseenMessages
         {
-            get { return unreadMessages; }
-            set
+            get
             {
-                unreadMessages = value;
-                NotifyPropertyChanged(nameof(UnreadMessages));
-                NotifyPropertyChanged(nameof(UnreadMessagesText));
+                int unreadMessages = 0;
+                foreach(DisplayableAccount account in Accounts)
+                {
+                    unreadMessages += account.Messages.Where(x => x.Seen == false).Count();
+                }
+                return string.Format("{0} unread messages", unreadMessages);
             }
+            set { }
         }
 
-        public string UnreadMessagesText
+        public bool CanSendMessage
         {
-            get { return string.Format("{0} unread messages", UnreadMessages); }
+            get
+            {
+                if (SelectedAccount != null && SelectedAccount.Online)
+                    return true;
+                return false;
+            }
             set { }
         }
         #endregion
@@ -143,11 +147,20 @@ namespace ExampleClient.View
 
             App.Current.Dispatcher.Invoke(() =>
             {
+                Guid selectedAccountID = Guid.Empty;
+                if (selectedAccount != null)
+                    selectedAccountID = SelectedAccount.Account.AccountID;
+
                 DisplayableAccount account = Accounts.Single(x => x.Account.AccountID == imperative.Account.AccountID);
                 Accounts.Remove(account);
 
                 account.Online = imperative.Online;
                 Accounts.Add(account);
+
+                if (selectedAccountID == account.Account.AccountID)
+                    SelectedAccount = account;
+
+                NotifyPropertyChanged(nameof(CanSendMessage));
             });
         }
 
@@ -156,10 +169,67 @@ namespace ExampleClient.View
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SendMessage(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            ListView listView = sender as ListView;
-            SelectedAccount = listView.SelectedItem as DisplayableAccount;
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                e.Handled = true;
+                MainWindow mainWindow = App.Current.MainWindow as MainWindow;
+
+                TextBox messageBox = sender as TextBox;
+                string message = messageBox.Text;
+
+                messageBox.Clear();
+
+                if (message != string.Empty)
+                {
+                    SendMessageImperative sendMessage = new SendMessageImperative() { Message = message };
+                    JamPacket packet = new JamPacket(SelectedAccount.Account.AccountID, loggedInAccount.Account.AccountID, SendMessageImperative.DATA_TYPE, sendMessage.GetBytes());
+                    mainWindow.Client.Send(packet);
+
+                    DisplayableMessage sentMessage = new DisplayableMessage(DisplayableMessage.MessageType.Local, LoggedInAccount, packet.Header.SendTimeUtc, message);
+                    SelectedAccount.Messages.Add(sentMessage);
+                }
+            }
+        }
+
+        public void ReceiveMessage(JamPacket packet)
+        {
+            if (packet.Header.DataType != SendMessageImperative.DATA_TYPE)
+                return;
+
+            SendMessageImperative imperative = new SendMessageImperative(packet.Data);
+            Guid senderID = packet.Header.Sender;
+            DateTime sendTimeUtc = packet.Header.SendTimeUtc;
+
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                DisplayableAccount senderAccount = Accounts.SingleOrDefault(x => x.Account.AccountID == senderID);
+                if (senderAccount == null)
+                    return;
+
+                DisplayableMessage receivedMessage = new DisplayableMessage(DisplayableMessage.MessageType.Remote, senderAccount, sendTimeUtc, imperative.Message);
+                if (SelectedAccount != null && SelectedAccount.Account.AccountID == senderID)
+                    receivedMessage.Seen = true;
+
+                senderAccount.Messages.Add(receivedMessage);
+
+                NotifyPropertyChanged(nameof(UnseenMessages));
+            });
+        }
+
+        private void ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            ScrollViewer scrollViewer = sender as ScrollViewer;
+            if (e.ExtentHeightChange != 0)
+                scrollViewer.ScrollToEnd();
+        }
+
+        private void MessageBoxEnabledOrDisabled(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox.IsEnabled)
+                textBox.Focus();
         }
     }
 }
