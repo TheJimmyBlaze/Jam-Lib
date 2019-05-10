@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -10,7 +11,7 @@ using System.Windows.Media;
 
 namespace ExampleClient.Domain
 {
-    public class DisplayableAccount
+    public class DisplayableAccount: INotifyPropertyChanged
     {
         public Account Account { get; set; }
         public bool Online { get; set; }
@@ -18,6 +19,9 @@ namespace ExampleClient.Domain
         public bool Selected { get; set; }
 
         private ObservableCollection<DisplayableMessage> messages;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public ObservableCollection<DisplayableMessage> Messages
         {
             get
@@ -29,6 +33,21 @@ namespace ExampleClient.Domain
                         string.Format("Begining of message history with {0} for this session.", Account.Username)));
                 }
                 return messages;
+            }
+            set { }
+        }
+
+        public void AddMessage(DisplayableMessage message)
+        {
+            Messages.Add(message);
+            NotifyPropertyChanged(nameof(UnseenMessages));
+        }
+
+        public int UnseenMessages
+        {
+            get
+            {
+                return Messages.Where(x => x.Seen == false).Count();
             }
             set { }
         }
@@ -81,6 +100,11 @@ namespace ExampleClient.Domain
         {
             Account = account;
             Online = online;
+        }
+
+        public void NotifyPropertyChanged(string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

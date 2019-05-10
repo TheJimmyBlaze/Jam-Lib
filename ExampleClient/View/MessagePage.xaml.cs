@@ -41,6 +41,7 @@ namespace ExampleClient.View
                     foreach (DisplayableMessage message in selectedAccount.Messages)
                         message.Seen = true;
                 }
+                selectedAccount.NotifyPropertyChanged(nameof(UnseenMessages));
 
                 NotifyPropertyChanged(nameof(SelectedAccount));
                 NotifyPropertyChanged(nameof(CanSendMessage));
@@ -64,12 +65,12 @@ namespace ExampleClient.View
         {
             get
             {
-                int unreadMessages = 0;
+                int unseenMessages = 0;
                 foreach(DisplayableAccount account in Accounts)
                 {
-                    unreadMessages += account.Messages.Where(x => x.Seen == false).Count();
+                    unseenMessages += account.UnseenMessages;
                 }
-                return string.Format("{0} unread messages", unreadMessages);
+                return string.Format("{0} new messages", unseenMessages);
             }
             set { }
         }
@@ -188,7 +189,7 @@ namespace ExampleClient.View
                     mainWindow.Client.Send(packet);
 
                     DisplayableMessage sentMessage = new DisplayableMessage(DisplayableMessage.MessageType.Local, LoggedInAccount, packet.Header.SendTimeUtc, message);
-                    SelectedAccount.Messages.Add(sentMessage);
+                    SelectedAccount.AddMessage(sentMessage);
                 }
             }
         }
@@ -212,7 +213,7 @@ namespace ExampleClient.View
                 if (SelectedAccount != null && SelectedAccount.Account.AccountID == senderID)
                     receivedMessage.Seen = true;
 
-                senderAccount.Messages.Add(receivedMessage);
+                senderAccount.AddMessage(receivedMessage);
 
                 NotifyPropertyChanged(nameof(UnseenMessages));
             });

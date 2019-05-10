@@ -59,6 +59,7 @@
     </ApplicationDefinition>
     <Compile Include="Converter\CollapseWhenFalseConverter.cs" />
     <Compile Include="Converter\CollapseWhenTrueConverter.cs" />
+    <Compile Include="Converter\CollapseWhenZeroConverter.cs" />
     <Compile Include="Converter\MessageBubbleSideConverter.cs" />
     <Compile Include="Converter\NotConverter.cs" />
     <Compile Include="Domain\DisplayableAccount.cs" />

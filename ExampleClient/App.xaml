@@ -8,6 +8,7 @@
 
         <converter:CollapseWhenFalseConverter x:Key="CollapseWhenFalse"/>
         <converter:CollapseWhenTrueConverter x:Key="CollapseWhenTrue"/>
+        <converter:CollapseWhenZeroConverter x:Key="CollapseWhenZero"/>
         <converter:NotConverter x:Key="NotConverter"/>
 
         <converter:MessageBubbleSideConverter x:Key="MessageBubbleSide"/>
