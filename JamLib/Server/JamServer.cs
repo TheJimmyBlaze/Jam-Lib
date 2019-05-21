@@ -49,6 +49,8 @@ namespace JamLib.Server
 
         public EventHandler<IdentifiedConnectionEventArgs> ClientConnectedElsewhereEvent;
 
+        public EventHandler DisposedEvent;
+
         public void OnMessageReceived(MessageReceivedEventArgs e)
         {
             MessageReceivedEvent?.Invoke(this, e);
@@ -87,6 +89,11 @@ namespace JamLib.Server
         public void OnClientConnectedElsewhere(IdentifiedConnectionEventArgs e)
         {
             ClientConnectedElsewhereEvent?.Invoke(this, e);
+        }
+
+        public void OnDisposed(EventArgs e)
+        {
+            DisposedEvent?.Invoke(this, e);
         }
         #endregion
 
@@ -142,7 +149,11 @@ namespace JamLib.Server
 
         public void Dispose()
         {
+            while (connections.Count > 0)
+                connections[0].Dispose();
+
             alive = false;
+            OnDisposed(null);
         }
 
         private void Listen(int port)

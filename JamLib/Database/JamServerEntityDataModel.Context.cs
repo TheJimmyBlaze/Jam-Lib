@@ -27,8 +27,6 @@ namespace JamLib.Database
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<AccountPermissionAssociation> AccountPermissionAssociations { get; set; }
-        public virtual DbSet<Permission> Permissions { get; set; }
         public virtual DbSet<AccountAccessCode> AccountAccessCodes { get; set; }
         public virtual DbSet<Account> Accounts { get; set; }
     

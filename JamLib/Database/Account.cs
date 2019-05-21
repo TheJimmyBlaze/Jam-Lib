@@ -18,7 +18,6 @@ namespace JamLib.Database
         public Account()
         {
             this.AccountAccessCodes = new HashSet<AccountAccessCode>();
-            this.AccountPermissionAssociations = new HashSet<AccountPermissionAssociation>();
         }
     
         public System.Guid AccountID { get; set; }
@@ -28,7 +27,5 @@ namespace JamLib.Database
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AccountAccessCode> AccountAccessCodes { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<AccountPermissionAssociation> AccountPermissionAssociations { get; set; }
     }
 }

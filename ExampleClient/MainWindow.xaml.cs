@@ -32,7 +32,7 @@ namespace ExampleClient
             InitializeComponent();
 
             Client = new JamClient(new Utf8JsonSerializer());
-            Client.ClientDisposedEvent += ClientEventHandler.OnClientDisposed;
+            Client.DisposedEvent += ClientEventHandler.OnClientDisposed;
             Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
 
             LoginPage loginPage = new LoginPage();

@@ -13,7 +13,7 @@ namespace JamLib.Server
                     serverConnection.Login(packet);
                     break;
                 case PingRequest.DATA_TYPE:
-                    serverConnection.Ping(packet);
+                    serverConnection.RespondToPing(packet);
                     break;
                 default:
                     serverConnection.Server.OnMessageReceived(new JamServer.MessageReceivedEventArgs() { ServerConnection = serverConnection, Packet = packet });

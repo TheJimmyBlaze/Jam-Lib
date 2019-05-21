@@ -6,6 +6,7 @@ using JamLib.Packet.Data;
 using JamLib.Server;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Text;
@@ -47,6 +48,11 @@ namespace ExampleServer.Network
             {
                 response = new RegisterAccountResponse(RegisterAccountResponse.AccountRegistrationResult.Bad, null, serverConnection.Serializer);
             }
+            catch (EntityException)
+            {
+                serverConnection.Server.Dispose();
+                return;
+            }
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterAccountResponse.DATA_TYPE, response.GetBytes());
             serverConnection.Send(responsePacket);
@@ -60,22 +66,26 @@ namespace ExampleServer.Network
 
         private static void GetRegisteredAccounts(JamServerConnection serverConnection)
         {
-            using (JamServerEntities dbContext = new JamServerEntities())
-            {
-                dbContext.Configuration.LazyLoadingEnabled = false;
-                List<Tuple<Account, bool>> accounts = new List<Tuple<Account, bool>>();
+            List<Tuple<Account, bool>> accounts = new List<Tuple<Account, bool>>();
 
-                foreach (Account account in dbContext.Accounts)
+            try
+            {
+                foreach (Account account in AccountFactory.Accounts)
                 {
                     bool online = serverConnection.Server.GetConnection(account.AccountID) != null;
                     accounts.Add(new Tuple<Account, bool>(account, online));
                 }
-
-                GetAccountsResponse response = new GetAccountsResponse(accounts, serverConnection.Serializer);
-
-                JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, GetAccountsResponse.DATA_TYPE, response.GetBytes());
-                serverConnection.Send(responsePacket);
             }
+            catch (EntityException)
+            {
+                serverConnection.Server.Dispose();
+                return;
+            }
+
+            GetAccountsResponse response = new GetAccountsResponse(accounts, serverConnection.Serializer);
+
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, GetAccountsResponse.DATA_TYPE, response.GetBytes());
+            serverConnection.Send(responsePacket);
         }
     }
 }

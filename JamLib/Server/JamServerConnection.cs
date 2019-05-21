@@ -6,6 +6,7 @@ using JamLib.Packet.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Entity.Core;
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -40,7 +41,6 @@ namespace JamLib.Server
             alive = true;
 
             Task.Run(() => Listen());
-
             Task.Run(() => SendPacketsFromQueue());
             Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
 
@@ -92,12 +92,17 @@ namespace JamLib.Server
                 response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, Serializer);
                 Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
             }
+            catch (EntityException)
+            {
+                Server.Dispose();
+                return;
+            }
 
-            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, Serializer.GetBytesFromStruct(response));
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
         }
 
-        public void Ping(JamPacket pingPacket)
+        public void RespondToPing(JamPacket pingPacket)
         {
             if (pingPacket.Header.DataType != PingRequest.DATA_TYPE)
                 return;
@@ -106,7 +111,7 @@ namespace JamLib.Server
 
             PingResponse response = new PingResponse(request.PingTimeUtc, DateTime.UtcNow, Serializer);
 
-            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, Serializer.GetBytesFromStruct(response));
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
         }
 
@@ -146,6 +151,12 @@ namespace JamLib.Server
             while (alive)
             {
                 JamPacket packet = JamPacket.Receive(stream);
+                if (packet == null)
+                {
+                    Dispose();
+                    return;
+                }
+
                 JamPacketRouter.Route(this, packet);
             }
         }
@@ -158,7 +169,7 @@ namespace JamLib.Server
 
                 PingRequest pingRequest = new PingRequest(DateTime.UtcNow, Serializer);
 
-                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, Serializer.GetBytesFromStruct(pingRequest));
+                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
                 Send(pingPacket);
             }
         }

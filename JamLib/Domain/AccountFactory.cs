@@ -10,6 +10,7 @@ namespace JamLib.Domain
 {
     public class AccountFactory
     {
+        #region Exceptions
         public class InvalidUsernameException: Exception
         {
             public InvalidUsernameException() { }
@@ -18,6 +19,35 @@ namespace JamLib.Domain
         public class InvalidAccessCodeException: Exception
         {
             public InvalidAccessCodeException() { }
+        }
+        #endregion
+
+        public static int Count
+        {
+            get
+            {
+                using (JamServerEntities dbContext = new JamServerEntities())
+                {
+                    return dbContext.Accounts.Count();
+                }
+            }
+        }
+
+        public static List<Account> Accounts
+        {
+            get
+            {
+                using (JamServerEntities dbContext = new JamServerEntities())
+                {
+                    List<Account> accounts = new List<Account>();
+                    foreach(Account account in dbContext.Accounts)
+                    {
+                        account.AccountAccessCodes.Clear();
+                        accounts.Add(account);
+                    }
+                    return accounts;
+                }
+            }
         }
 
         public static Account Generate(string username, string password, IHashFactory hashFactory, bool approved = false)
@@ -48,6 +78,7 @@ namespace JamLib.Domain
                 dbContext.SaveChanges();
             }
 
+            account.AccountAccessCodes.Clear();
             return account;
         }
 
@@ -55,16 +86,15 @@ namespace JamLib.Domain
         {
             using (JamServerEntities dbContext = new JamServerEntities())
             {
-                dbContext.Configuration.LazyLoadingEnabled = false;
                 Account account = dbContext.Accounts.SingleOrDefault(x => x.Username == username);
 
                 if (account != null)
                 {
                     AccountAccessCode accessCode = dbContext.AccountAccessCodes.SingleOrDefault(x => x.AccountID == account.AccountID);
-                    account.AccountAccessCodes = null;
 
                     if (accessCode != null && hashFactory.ValidateString(password, accessCode.AccessCode))
                     {
+                        account.AccountAccessCodes.Clear();
                         return account;
                     }
                     else throw new InvalidAccessCodeException();

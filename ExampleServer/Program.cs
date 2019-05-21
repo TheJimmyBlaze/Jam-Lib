@@ -7,6 +7,7 @@ using JamLib.Packet;
 using JamLib.Server;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core;
 using System.Data.Entity.Core.Objects;
 using System.IO;
 using System.Linq;
@@ -48,6 +49,8 @@ namespace ExampleServer
             Server.ClientInvalidPasswordEvent += ServerEventHandler.OnClientInvalidPassword;
 
             Server.ClientConnectedElsewhereEvent += ServerEventHandler.OnClientConnectedElsewhere;
+
+            Server.DisposedEvent += ServerEventHandler.OnDisposed;
             
             Server.Start(port, certificatePath, certificatePassword);
 
@@ -72,11 +75,19 @@ namespace ExampleServer
 
         private static void EnsureRootAccount(IHashFactory hashFactory)
         {
-            if (!Domain.AccountFactory.RequireRootAccount())
-                return;
+            try
+            {
+                if (AccountFactory.Count != 0)
+                    return;
 
-            Console.WriteLine("A root account does not exist on the connected database, please create one now.");
-            AttemptCreateRootAccount(hashFactory);
+                Console.WriteLine("A root account does not exist on the connected database, please create one now.");
+                AttemptCreateRootAccount(hashFactory);
+            }
+            catch (EntityException)
+            {
+                Console.WriteLine("A database connection could not be established.");
+                Exit();
+            }
         }
 
         private static void AttemptCreateRootAccount(IHashFactory hashFactory)
@@ -89,7 +100,7 @@ namespace ExampleServer
 
             try
             {
-                Domain.AccountFactory.CreateRootAccount(username, password, hashFactory);
+                AccountFactory.Generate(username, password, hashFactory);
                 Console.WriteLine("Root account created successfully.");
             }
             catch (Exception ex)
@@ -108,6 +119,12 @@ namespace ExampleServer
             Sha256HashFactory hashFactory = new Sha256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
 
             return hashFactory;
+        }
+
+        public static void Exit()
+        {
+            Console.WriteLine("The program will now exit.");
+            Environment.Exit(0);
         }
     }
 }

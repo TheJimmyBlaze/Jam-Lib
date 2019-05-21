@@ -157,18 +157,20 @@ namespace ExampleClient.View
 
                 Guid selectedAccountID = Guid.Empty;
                 if (selectedAccount != null)
+                {
                     selectedAccountID = SelectedAccount.Account.AccountID;
 
-                DisplayableAccount account = Accounts.Single(x => x.Account.AccountID == imperative.Account.AccountID);
-                Accounts.Remove(account);
+                    DisplayableAccount account = Accounts.Single(x => x.Account.AccountID == imperative.Account.AccountID);
+                    Accounts.Remove(account);
 
-                account.Online = imperative.Online;
-                Accounts.Add(account);
+                    account.Online = imperative.Online;
+                    Accounts.Add(account);
 
-                if (selectedAccountID == account.Account.AccountID)
-                    SelectedAccount = account;
+                    if (selectedAccountID == account.Account.AccountID)
+                        SelectedAccount = account;
 
-                NotifyPropertyChanged(nameof(CanSendMessage));
+                    NotifyPropertyChanged(nameof(CanSendMessage));
+                }
             });
         }
 

@@ -65,5 +65,11 @@ namespace ExampleServer.Network
         {
             Console.WriteLine("Client: {0} has connected elsewhere, closing existing connection...", e.Client.Client.RemoteEndPoint);
         }
+
+        internal static void OnDisposed(object sender, EventArgs e)
+        {
+            Console.WriteLine("Server disposed.");
+            Program.Exit();
+        }
     }
 }

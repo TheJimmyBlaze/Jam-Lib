@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ExampleClient.Network
 {
@@ -15,8 +16,12 @@ namespace ExampleClient.Network
             App.Current.Dispatcher.Invoke(() =>
             {
                 MainWindow main = App.Current.MainWindow as MainWindow;
-                if (!(main.ViewFrame.Content is LoginPage))
-                    main.Navigate(new LoginPage());
+
+                LoginPage loginPage = new LoginPage();
+                loginPage.NotifyDisconnect();
+
+                main.Navigate(loginPage);
+                main.Cursor = Cursors.Arrow;
             });
         }
 

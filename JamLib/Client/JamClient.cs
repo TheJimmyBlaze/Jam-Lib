@@ -25,16 +25,16 @@ namespace JamLib.Client
         }
 
         public EventHandler<MessageReceivedEventArgs> MessageReceivedEvent;
-        public EventHandler ClientDisposedEvent;
+        public EventHandler DisposedEvent;
 
         public void OnMessageReceived(MessageReceivedEventArgs e)
         {
             MessageReceivedEvent?.Invoke(this, e);
         }
 
-        public void OnClientDisposed(EventArgs e)
+        public void OnDisposed(EventArgs e)
         {
-            ClientDisposedEvent?.Invoke(this, e);
+            DisposedEvent?.Invoke(this, e);
         }
         #endregion
 
@@ -67,19 +67,23 @@ namespace JamLib.Client
 
         public void Connect(string ip, int port, int timeout)
         {
+            const int DISCONNECT_POLL_FREQUENCY = 500;
+
             try
             {
                 TcpClient client = new TcpClient(ip, port);
                 SslStream inProgressStream = new SslStream(client.GetStream(), false, ValidateCertificate);
-                
+
                 inProgressStream.BeginAuthenticateAsClient(ip, null, SslProtocols.Default, false, ConnectCallback, inProgressStream);
                 connectionCompleted.WaitOne(timeout);
 
                 if (stream != null && stream.IsAuthenticated)
                 {
                     alive = true;
+
                     Task.Run(() => Listen());
                     Task.Run(() => SendPacketsFromQueue());
+                    Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
                 }
             }
             catch (SocketException) { }
@@ -96,7 +100,7 @@ namespace JamLib.Client
         {
             alive = false;
             stream?.Close();
-            OnClientDisposed(null);
+            OnDisposed(null);
         }
 
         public void Login(string username, string password)
@@ -107,7 +111,7 @@ namespace JamLib.Client
             Send(packet);
         }
 
-        public void Ping(JamPacket pingPacket)
+        public void RespondToPing(JamPacket pingPacket)
         {
             if (pingPacket.Header.DataType != PingRequest.DATA_TYPE)
                 return;
@@ -155,7 +159,26 @@ namespace JamLib.Client
             while (alive)
             {
                 JamPacket packet = JamPacket.Receive(stream);
+                if (packet == null)
+                {
+                    Dispose();
+                    return;
+                }
+
                 InternalClientInterpreter.Interpret(this, packet);
+            }
+        }
+
+        private void PollConnection(int pollFrequency)
+        {
+            while (alive)
+            {
+                Thread.Sleep(pollFrequency);
+
+                PingRequest pingRequest = new PingRequest(DateTime.UtcNow, Serializer);
+
+                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
+                Send(pingPacket);
             }
         }
     }

@@ -29,8 +29,9 @@ namespace ExampleClient.View
     {
         private const int CONNECT_TIMEOUT = 5000;
 
-        private const string INVALID_CREDENTIALS = "Invalid username or password";
         private const string SERVER_UNREACHABLE = "Connection attempt timeout";
+        private const string SERVER_DISCONNECT = "Disconnected from server";
+        private const string INVALID_CREDENTIALS = "Invalid username or password";
         private const string USERNAME_IN_USE = "Username already in use";
 
         #region Getters and Setters
@@ -309,6 +310,11 @@ namespace ExampleClient.View
             PasswordBox.Password = string.Empty;
             PasswordBox.IsEnabled = true;
             PasswordBox.Focus();
+        }
+
+        public void NotifyDisconnect()
+        {
+            LoginMessageText = SERVER_DISCONNECT;
         }
 
         public void NotifyPropertyChanged(string name = "")

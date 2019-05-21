@@ -15,7 +15,7 @@ namespace JamLib.Client
             switch (packet.Header.DataType)
             {
                 case PingRequest.DATA_TYPE:
-                    client.Ping(packet);
+                    client.RespondToPing(packet);
                     break;
                 default:
                     client.OnMessageReceived(new JamClient.MessageReceivedEventArgs() { Packet = packet });

@@ -78,6 +78,8 @@ namespace JamLib.Packet
 
         public static JamPacket Receive(SslStream stream)
         {
+            const int RECEIVE_TIMEOUT = 5000;
+
             ReceiveState state = new ReceiveState()
             {
                 Stream = stream,
@@ -86,7 +88,7 @@ namespace JamLib.Packet
                 ReceiveCompleted = new AutoResetEvent(false)
             };
             stream.BeginRead(state.HeaderBuffer, 0, state.HeaderBuffer.Length, ReceiveHeaderCallback, state);
-            state.ReceiveCompleted.WaitOne();
+            state.ReceiveCompleted.WaitOne(RECEIVE_TIMEOUT);
 
             if (state.Packet.Header.DataType == 0)
                 return null;
