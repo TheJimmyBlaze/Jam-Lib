@@ -11,14 +11,22 @@ namespace ExampleServer.Network.Data
     {
         public const int DATA_TYPE = 105;
 
-        public GetAccountsRequest(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public GetAccountsRequest(ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<GetAccountsRequest>(rawBytes);
+            this.serializer = serializer;
+        }
+
+        public GetAccountsRequest(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<GetAccountsRequest>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

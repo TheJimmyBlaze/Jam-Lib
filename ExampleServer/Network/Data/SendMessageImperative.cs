@@ -13,14 +13,23 @@ namespace ExampleServer.Network.Data
 
         public string Message { get; set; }
 
-        public SendMessageImperative(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public SendMessageImperative(string message, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<SendMessageImperative>(rawBytes);
+            Message = message;
+            this.serializer = serializer;
+        }
+
+        public SendMessageImperative(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<SendMessageImperative>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

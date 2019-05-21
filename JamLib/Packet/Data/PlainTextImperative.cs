@@ -14,14 +14,23 @@ namespace JamLib.Packet.Data
 
         public string Text { get; set; }
 
-        public PlainTextImperative(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public PlainTextImperative(string text, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<PlainTextImperative>(rawBytes);
+            Text = text;
+            this.serializer = serializer;
+        }
+
+        public PlainTextImperative(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<PlainTextImperative>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

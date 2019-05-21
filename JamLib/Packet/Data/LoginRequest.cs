@@ -16,14 +16,24 @@ namespace JamLib.Packet.Data
         public string Username { get; set; }
         public string Password { get; set; }
 
-        public LoginRequest(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public LoginRequest(string username, string password, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<LoginRequest>(rawBytes);
+            Username = username;
+            Password = password;
+            this.serializer = serializer;
+        }
+
+        public LoginRequest(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<LoginRequest>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

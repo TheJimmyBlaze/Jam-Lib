@@ -1,5 +1,6 @@
 ﻿using JamLib.Database;
 using JamLib.Domain;
+using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
@@ -46,11 +47,18 @@ namespace JamLib.Client
 
         public Account Account { get; set; }
 
+        public readonly ISerializer Serializer;
+
         public bool IsConnected
         {
             get { return stream != null && stream.CanWrite && stream.CanRead; }
         }
         
+        public JamClient(ISerializer serializer)
+        {
+            Serializer = serializer;
+        }
+
         protected virtual bool ValidateCertificate(object sender, X509Certificate serverCertificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             //This basic method simply returns true, method should be overriden if certificate validation implementation is required.
@@ -93,11 +101,7 @@ namespace JamLib.Client
 
         public void Login(string username, string password)
         {
-            LoginRequest loginRequest = new LoginRequest()
-            {
-                Username = username,
-                Password = password
-            };
+            LoginRequest loginRequest = new LoginRequest(username, password, Serializer);
 
             JamPacket packet = new JamPacket(Guid.Empty, Guid.Empty, LoginRequest.DATA_TYPE, loginRequest.GetBytes());
             Send(packet);
@@ -108,13 +112,9 @@ namespace JamLib.Client
             if (pingPacket.Header.DataType != PingRequest.DATA_TYPE)
                 return;
 
-            PingRequest request = new PingRequest(pingPacket.Data);
+            PingRequest request = new PingRequest(pingPacket.Data, Serializer);
 
-            PingResponse response = new PingResponse()
-            {
-                PingTimeUtc = request.PingTimeUtc,
-                PongTimeUtc = DateTime.UtcNow
-            };
+            PingResponse response = new PingResponse(request.PingTimeUtc, DateTime.UtcNow, Serializer);
 
             Guid accountID = Guid.Empty;
             if (Account != null)

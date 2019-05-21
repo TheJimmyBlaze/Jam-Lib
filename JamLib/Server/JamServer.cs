@@ -1,5 +1,6 @@
 ﻿using JamLib.Database;
 using JamLib.Domain.Cryptography;
+using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using System;
 using System.Collections.Generic;
@@ -103,9 +104,12 @@ namespace JamLib.Server
 
         private bool alive;
 
-        public JamServer(IHashFactory hashFactory)
+        public readonly ISerializer Serializer;
+
+        public JamServer(IHashFactory hashFactory, ISerializer serializer)
         {
             HashFactory = hashFactory;
+            Serializer = serializer;
         }
 
         public List<JamServerConnection> GetAllConnections()
@@ -165,9 +169,12 @@ namespace JamLib.Server
         private void AcceptCallback(IAsyncResult result)
         {
             ConnectState state = (ConnectState)result.AsyncState;
-            state.Stream.EndAuthenticateAsServer(result);
+            if (state.Stream.CanRead)
+                state.Stream.EndAuthenticateAsServer(result);
+            else
+                return;
 
-            JamServerConnection connection = new JamServerConnection(state.Client, state.Stream, this);
+            new JamServerConnection(state.Client, state.Stream, this);
 
             acceptCompleted.Set();
         }

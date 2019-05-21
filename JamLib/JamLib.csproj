@@ -94,6 +94,7 @@
     <Compile Include="Domain\Cryptography\Sha256HashFactory.cs" />
     <Compile Include="Domain\Cryptography\IHashFactory.cs" />
     <Compile Include="Domain\AccountFactory.cs" />
+    <Compile Include="Domain\Serialization\ISerializer.cs" />
     <Compile Include="Domain\Serialization\StructMarshal.cs" />
     <Compile Include="Domain\Serialization\Utf8JsonSerializer.cs" />
     <Compile Include="Packet\Data\LoginResponse.cs" />

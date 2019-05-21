@@ -30,11 +30,7 @@ namespace ExampleServer.Network
         {
             Console.WriteLine("Client: {0} disconnected.", e.Client.Client.RemoteEndPoint);
 
-            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative()
-            {
-                Account = e.Account,
-                Online = false
-            };
+            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative(e.Account, false, e.ServerConnection.Serializer);
 
             JamPacket imperativePacket = new JamPacket(Guid.Empty, Guid.Empty, AccountOnlineStatusChangedImperative.DATA_TYPE, imperative.GetBytes());
             foreach(JamServerConnection connection in e.ServerConnection.Server.GetAllConnections()){
@@ -46,11 +42,7 @@ namespace ExampleServer.Network
         {
             Console.WriteLine("Client: {0} identified as: {1} - {2}", e.Client.Client.RemoteEndPoint, e.Account.AccountID, e.Account.Username);
 
-            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative()
-            {
-                Account = e.Account,
-                Online = true
-            };
+            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative(e.Account, true, e.ServerConnection.Serializer);
 
             JamPacket imperativePacket = new JamPacket(Guid.Empty, Guid.Empty, AccountOnlineStatusChangedImperative.DATA_TYPE, imperative.GetBytes());
             foreach(JamServerConnection connection in e.ServerConnection.Server.GetAllConnections())

@@ -14,14 +14,24 @@ namespace ExampleServer.Network.Data
         public string Username { get; set; }
         public string Password { get; set; }
 
-        public RegisterAccountRequest(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public RegisterAccountRequest(string username, string password, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<RegisterAccountRequest>(rawBytes);
+            Username = username;
+            Password = password;
+            this.serializer = serializer;
+        }
+
+        public RegisterAccountRequest(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<RegisterAccountRequest>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

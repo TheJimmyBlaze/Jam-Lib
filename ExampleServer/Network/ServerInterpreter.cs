@@ -23,7 +23,7 @@ namespace ExampleServer.Network
                     RegisterAccount(serverConnection, packet);
                     break;
                 case PlainTextImperative.DATA_TYPE:
-                    WritePlainTextToConsole(packet);
+                    WritePlainTextToConsole(serverConnection, packet);
                     break;
                 case GetAccountsRequest.DATA_TYPE:
                     GetRegisteredAccounts(serverConnection);
@@ -33,36 +33,28 @@ namespace ExampleServer.Network
 
         private static void RegisterAccount(JamServerConnection serverConnection, JamPacket packet)
         {
-            RegisterAccountRequest register = new RegisterAccountRequest(packet.Data);
+            RegisterAccountRequest register = new RegisterAccountRequest(packet.Data, serverConnection.Serializer);
 
             RegisterAccountResponse response;
             try
             {
                 Account createdAccount = AccountFactory.Generate(register.Username, register.Password, Program.Server.HashFactory, true);
-                response = new RegisterAccountResponse()
-                {
-                    Result = RegisterAccountResponse.AccountRegistrationResult.Good,
-                    Account = createdAccount
-                };
+                response = new RegisterAccountResponse(RegisterAccountResponse.AccountRegistrationResult.Good, createdAccount, serverConnection.Serializer);
 
                 Console.WriteLine("Registered new Account: {0} - {1}", createdAccount.AccountID, createdAccount.Username);
             }
             catch (DbUpdateException)
             {
-                response = new RegisterAccountResponse()
-                {
-                    Result = RegisterAccountResponse.AccountRegistrationResult.Bad,
-                    Account = null
-                };
+                response = new RegisterAccountResponse(RegisterAccountResponse.AccountRegistrationResult.Bad, null, serverConnection.Serializer);
             }
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterAccountResponse.DATA_TYPE, response.GetBytes());
             serverConnection.Send(responsePacket);
         }
 
-        private static void WritePlainTextToConsole(JamPacket packet)
+        private static void WritePlainTextToConsole(JamServerConnection serverConnection, JamPacket packet)
         {
-            PlainTextImperative plainText = new PlainTextImperative(packet.Data);
+            PlainTextImperative plainText = new PlainTextImperative(packet.Data, serverConnection.Serializer);
             Console.WriteLine("[{0}]: {1}", packet.Header.Sender, plainText.Text);
         }
 
@@ -79,10 +71,8 @@ namespace ExampleServer.Network
                     accounts.Add(new Tuple<Account, bool>(account, online));
                 }
 
-                GetAccountsResponse response = new GetAccountsResponse()
-                {
-                    Accounts = accounts
-                };
+                GetAccountsResponse response = new GetAccountsResponse(accounts, serverConnection.Serializer);
+
                 JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, GetAccountsResponse.DATA_TYPE, response.GetBytes());
                 serverConnection.Send(responsePacket);
             }

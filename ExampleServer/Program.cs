@@ -2,6 +2,7 @@
 using JamLib.Database;
 using JamLib.Domain;
 using JamLib.Domain.Cryptography;
+using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Server;
 using System;
@@ -35,7 +36,7 @@ namespace ExampleServer
             EnsureRootAccount(hashFactory);
 
             Console.WriteLine("Starting server...");
-            Server = new JamServer(hashFactory);
+            Server = new JamServer(hashFactory, new Utf8JsonSerializer());
 
             Server.MessageReceivedEvent += ServerEventHandler.OnMessageReceived;
 

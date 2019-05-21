@@ -1,5 +1,6 @@
 ﻿using JamLib.Database;
 using JamLib.Domain;
+using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
 using System;
@@ -25,11 +26,15 @@ namespace JamLib.Server
 
         public Account Account { get; private set; }
 
+        public readonly ISerializer Serializer;
+
         public JamServerConnection(TcpClient client, SslStream stream, JamServer server)
         {
             const int DISCONNECT_POLL_FREQUENCY = 500;
 
             Server = server;
+            Serializer = server.Serializer;
+
             Client = client;
             this.stream = stream;
             alive = true;
@@ -58,7 +63,7 @@ namespace JamLib.Server
             if (loginPacket.Header.DataType != LoginRequest.DATA_TYPE)
                 return;
 
-            LoginRequest request = new LoginRequest(loginPacket.Data);
+            LoginRequest request = new LoginRequest(loginPacket.Data, Serializer);
 
             LoginResponse response;
             try
@@ -73,26 +78,22 @@ namespace JamLib.Server
                     existingConnection.Dispose();
                 }
 
-                response = new LoginResponse()
-                {
-                    Result = LoginResponse.LoginResult.Good,
-                    Account = Account
-                };
+                response = new LoginResponse(LoginResponse.LoginResult.Good, Account, Serializer);
 
                 Server.AddConnection(this);
             }
             catch (AccountFactory.InvalidUsernameException)
             {
-                response = new LoginResponse() { Result = LoginResponse.LoginResult.BadUsername };
+                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, Serializer);
                 Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
             }
             catch (AccountFactory.InvalidAccessCodeException)
             {
-                response = new LoginResponse() { Result = LoginResponse.LoginResult.BadPassword };
+                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, Serializer);
                 Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
             }
 
-            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, response.GetBytes());
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, LoginResponse.DATA_TYPE, Serializer.GetBytesFromStruct(response));
             Send(responsePacket);
         }
 
@@ -101,15 +102,11 @@ namespace JamLib.Server
             if (pingPacket.Header.DataType != PingRequest.DATA_TYPE)
                 return;
 
-            PingRequest request = new PingRequest(pingPacket.Data);
+            PingRequest request = new PingRequest(pingPacket.Data, Serializer);
 
-            PingResponse response = new PingResponse()
-            {
-                PingTimeUtc = request.PingTimeUtc,
-                PongTimeUtc = DateTime.UtcNow
-            };
+            PingResponse response = new PingResponse(request.PingTimeUtc, DateTime.UtcNow, Serializer);
 
-            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, response.GetBytes());
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, Serializer.GetBytesFromStruct(response));
             Send(responsePacket);
         }
 
@@ -158,13 +155,10 @@ namespace JamLib.Server
             while (alive)
             {
                 Thread.Sleep(pollFrequency);
-                
-                PingRequest pingRequest = new PingRequest()
-                {
-                    PingTimeUtc = DateTime.UtcNow
-                };
 
-                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
+                PingRequest pingRequest = new PingRequest(DateTime.UtcNow, Serializer);
+
+                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, Serializer.GetBytesFromStruct(pingRequest));
                 Send(pingPacket);
             }
         }

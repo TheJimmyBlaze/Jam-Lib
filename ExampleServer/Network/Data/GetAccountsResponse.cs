@@ -12,16 +12,25 @@ namespace ExampleServer.Network.Data
     {
         public const int DATA_TYPE = 106;
         
-        public List<Tuple<Account, bool>> Accounts; //Tuple used to store online status of accompanied Account.
+        public List<Tuple<Account, bool>> Accounts { get; set; } //Tuple used to store online status of accompanied Account.
 
-        public GetAccountsResponse(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public GetAccountsResponse(List<Tuple<Account, bool>> accounts, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<GetAccountsResponse>(rawBytes);
+            Accounts = accounts;
+            this.serializer = serializer;
         }
-        
+
+        public GetAccountsResponse(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<GetAccountsResponse>(rawBytes);
+            this.serializer = serializer;
+        }
+
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

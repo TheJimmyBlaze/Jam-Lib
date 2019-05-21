@@ -14,14 +14,24 @@ namespace JamLib.Packet.Data
         public DateTime PingTimeUtc { get; set; }
         public DateTime PongTimeUtc { get; set; }
 
-        public PingResponse(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public PingResponse(DateTime pingTimeUtc, DateTime pongTimeUtc, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<PingResponse>(rawBytes);
+            PingTimeUtc = pingTimeUtc;
+            PongTimeUtc = pongTimeUtc;
+            this.serializer = serializer;
+        }
+
+        public PingResponse(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<PingResponse>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

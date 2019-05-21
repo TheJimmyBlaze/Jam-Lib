@@ -40,8 +40,8 @@ namespace ExampleClient.View
                 {
                     foreach (DisplayableMessage message in selectedAccount.Messages)
                         message.Seen = true;
+                    selectedAccount.NotifyPropertyChanged(nameof(UnseenMessages));
                 }
-                selectedAccount.NotifyPropertyChanged(nameof(UnseenMessages));
 
                 NotifyPropertyChanged(nameof(SelectedAccount));
                 NotifyPropertyChanged(nameof(CanSendMessage));
@@ -111,11 +111,11 @@ namespace ExampleClient.View
 
         public void GetAccounts()
         {
-            MainWindow mainWindow = App.Current.MainWindow as MainWindow;
+            MainWindow main = App.Current.MainWindow as MainWindow;
 
-            GetAccountsRequest request = new GetAccountsRequest();
+            GetAccountsRequest request = new GetAccountsRequest(main.Client.Serializer);
             JamPacket requestPacket = new JamPacket(Guid.Empty, Guid.Empty, GetAccountsRequest.DATA_TYPE, request.GetBytes());
-            mainWindow.Client.Send(requestPacket);
+            main.Client.Send(requestPacket);
         }
 
         public void HandleGetAccountsResponse(JamPacket packet)
@@ -123,18 +123,23 @@ namespace ExampleClient.View
             if (packet.Header.DataType != GetAccountsResponse.DATA_TYPE)
                 return;
 
-            GetAccountsResponse response = new GetAccountsResponse(packet.Data); 
-            foreach(Tuple<Account, bool> tuple in response.Accounts)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                Account account = tuple.Item1;
-                bool online = tuple.Item2;
+                MainWindow main = App.Current.MainWindow as MainWindow;
+                GetAccountsResponse response = new GetAccountsResponse(packet.Data, main.Client.Serializer);
 
-                if (account.AccountID != LoggedInAccount.Account.AccountID)
+                foreach(Tuple<Account, bool> tuple in response.Accounts)
                 {
-                    DisplayableAccount displayableAccount = new DisplayableAccount(account, online);
-                    App.Current.Dispatcher.Invoke(() => Accounts.Add(displayableAccount));
+                    Account account = tuple.Item1;
+                    bool online = tuple.Item2;
+
+                    if (account.AccountID != LoggedInAccount.Account.AccountID)
+                    {
+                        DisplayableAccount displayableAccount = new DisplayableAccount(account, online);
+                        Accounts.Add(displayableAccount);
+                    }
                 }
-            }
+            });
         }
 
         public void HandleAccountOnlineStatusChangedImperative(JamPacket packet)
@@ -142,12 +147,14 @@ namespace ExampleClient.View
             if (packet.Header.DataType != AccountOnlineStatusChangedImperative.DATA_TYPE)
                 return;
 
-            AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative(packet.Data);
-            if (imperative.Account == null)
-                return;
-
             App.Current.Dispatcher.Invoke(() =>
             {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+
+                AccountOnlineStatusChangedImperative imperative = new AccountOnlineStatusChangedImperative(packet.Data, main.Client.Serializer);
+                if (imperative.Account == null)
+                    return;
+
                 Guid selectedAccountID = Guid.Empty;
                 if (selectedAccount != null)
                     selectedAccountID = SelectedAccount.Account.AccountID;
@@ -175,7 +182,7 @@ namespace ExampleClient.View
             if (e.Key == System.Windows.Input.Key.Enter)
             {
                 e.Handled = true;
-                MainWindow mainWindow = App.Current.MainWindow as MainWindow;
+                MainWindow main = App.Current.MainWindow as MainWindow;
 
                 TextBox messageBox = sender as TextBox;
                 string message = messageBox.Text;
@@ -184,9 +191,9 @@ namespace ExampleClient.View
 
                 if (message != string.Empty)
                 {
-                    SendMessageImperative sendMessage = new SendMessageImperative() { Message = message };
+                    SendMessageImperative sendMessage = new SendMessageImperative(message, main.Client.Serializer);
                     JamPacket packet = new JamPacket(SelectedAccount.Account.AccountID, loggedInAccount.Account.AccountID, SendMessageImperative.DATA_TYPE, sendMessage.GetBytes());
-                    mainWindow.Client.Send(packet);
+                    main.Client.Send(packet);
 
                     DisplayableMessage sentMessage = new DisplayableMessage(DisplayableMessage.MessageType.Local, LoggedInAccount, packet.Header.SendTimeUtc, message);
                     SelectedAccount.AddMessage(sentMessage);
@@ -198,13 +205,15 @@ namespace ExampleClient.View
         {
             if (packet.Header.DataType != SendMessageImperative.DATA_TYPE)
                 return;
-
-            SendMessageImperative imperative = new SendMessageImperative(packet.Data);
-            Guid senderID = packet.Header.Sender;
-            DateTime sendTimeUtc = packet.Header.SendTimeUtc;
-
+            
             App.Current.Dispatcher.Invoke(() =>
             {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+
+                SendMessageImperative imperative = new SendMessageImperative(packet.Data, main.Client.Serializer);
+                Guid senderID = packet.Header.Sender;
+                DateTime sendTimeUtc = packet.Header.SendTimeUtc;
+
                 DisplayableAccount senderAccount = Accounts.SingleOrDefault(x => x.Account.AccountID == senderID);
                 if (senderAccount == null)
                     return;

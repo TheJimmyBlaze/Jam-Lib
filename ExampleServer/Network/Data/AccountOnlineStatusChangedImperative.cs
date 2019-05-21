@@ -15,14 +15,24 @@ namespace ExampleServer.Network.Data
         public Account Account { get; set; }
         public bool Online { get; set; }
 
-        public AccountOnlineStatusChangedImperative(byte[] rawBytes)
+        private readonly ISerializer serializer;
+
+        public AccountOnlineStatusChangedImperative(Account account, bool online, ISerializer serializer)
         {
-            this = Utf8JsonSerializer.GetStructFromBytes<AccountOnlineStatusChangedImperative>(rawBytes);
+            Account = account;
+            Online = online;
+            this.serializer = serializer;
+        }
+
+        public AccountOnlineStatusChangedImperative(byte[] rawBytes, ISerializer serializer)
+        {
+            this = serializer.GetStructFromBytes<AccountOnlineStatusChangedImperative>(rawBytes);
+            this.serializer = serializer;
         }
 
         public byte[] GetBytes()
         {
-            return Utf8JsonSerializer.GetBytesFromStruct(this);
+            return serializer.GetBytesFromStruct(this);
         }
     }
 }

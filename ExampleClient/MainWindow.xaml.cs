@@ -1,6 +1,7 @@
 ﻿using ExampleClient.Network;
 using ExampleClient.View;
 using JamLib.Client;
+using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace ExampleClient
         {
             InitializeComponent();
 
-            Client = new JamClient();
+            Client = new JamClient(new Utf8JsonSerializer());
             Client.ClientDisposedEvent += ClientEventHandler.OnClientDisposed;
             Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
 

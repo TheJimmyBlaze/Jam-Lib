@@ -195,11 +195,7 @@ namespace ExampleClient.View
                     return;
                 }
 
-                RegisterAccountRequest request = new RegisterAccountRequest()
-                {
-                    Username = username,
-                    Password = PasswordBox.Password
-                };
+                RegisterAccountRequest request = new RegisterAccountRequest(username, PasswordBox.Password, main.Client.Serializer);
                 JamPacket requestPacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterAccountRequest.DATA_TYPE, request.GetBytes());
                 main.Client.Send(requestPacket);
             });
@@ -213,7 +209,7 @@ namespace ExampleClient.View
             App.Current.Dispatcher.Invoke(() =>
             {
                 MainWindow main = App.Current.MainWindow as MainWindow;
-                LoginResponse response = new LoginResponse(packet.Data);
+                LoginResponse response = new LoginResponse(packet.Data, main.Client.Serializer);
 
                 if (response.Result == LoginResponse.LoginResult.Good)
                 {
@@ -242,12 +238,13 @@ namespace ExampleClient.View
             App.Current.Dispatcher.Invoke(() =>
             {
                 MainWindow main = App.Current.MainWindow as MainWindow;
-                RegisterAccountResponse response = new RegisterAccountResponse(packet.Data);
+                RegisterAccountResponse response = new RegisterAccountResponse(packet.Data, main.Client.Serializer);
 
                 if (response.Result == RegisterAccountResponse.AccountRegistrationResult.Good)
                 {
-                    MessagePage messagePage = new MessagePage();
-                    main.Navigate(messagePage);
+                    main.Client.Dispose();
+                    Login(null, null);
+                    return;
                 }
                 else
                 {
