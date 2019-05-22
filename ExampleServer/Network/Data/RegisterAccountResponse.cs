@@ -11,6 +11,7 @@ namespace ExampleServer.Network.Data
     public struct RegisterAccountResponse
     {
         public const int DATA_TYPE = 101;
+        public const string DATA_SIGNITURE = "RegisterAccountResponse";
 
         public enum AccountRegistrationResult { Good, Bad };
 

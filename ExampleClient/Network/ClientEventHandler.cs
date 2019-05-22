@@ -16,6 +16,7 @@ namespace ExampleClient.Network
             App.Current.Dispatcher.Invoke(() =>
             {
                 MainWindow main = App.Current.MainWindow as MainWindow;
+                main.ResetClient();
 
                 if (!(main.ViewFrame.Content is LoginPage))
                 {

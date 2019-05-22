@@ -133,12 +133,7 @@ namespace JamLib.Server
                 return;
 
             RegisterDataTypesRequest request = new RegisterDataTypesRequest(registerPacket.Data, Serializer);
-            List<DataType> registeredDataTypes = new List<DataType>();
-            foreach (DataType dataType in request.DataTypes)
-            {
-                registeredDataTypes.Add(Server.DataTypeRegistry.Register(dataType));
-            }
-            RegisterDataTypesResponse response = new RegisterDataTypesResponse(registeredDataTypes, Serializer);
+            RegisterDataTypesResponse response = new RegisterDataTypesResponse(Server.DataTypeRegistry.BulkRegister(request.DataTypes), Serializer);
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterDataTypesResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);

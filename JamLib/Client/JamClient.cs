@@ -69,8 +69,6 @@ namespace JamLib.Client
 
         public void Connect(string ip, int port, int timeout)
         {
-            const int DISCONNECT_POLL_FREQUENCY = 500;
-
             try
             {
                 TcpClient client = new TcpClient(ip, port);
@@ -85,7 +83,6 @@ namespace JamLib.Client
 
                     Task.Run(() => Listen());
                     Task.Run(() => SendPacketsFromQueue());
-                    Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
                 }
             }
             catch (SocketException) { }
@@ -171,19 +168,6 @@ namespace JamLib.Client
                 }
 
                 InternalClientInterpreter.Interpret(this, packet);
-            }
-        }
-
-        private void PollConnection(int pollFrequency)
-        {
-            while (alive)
-            {
-                Thread.Sleep(pollFrequency);
-
-                PingRequest pingRequest = new PingRequest(DateTime.UtcNow, Serializer);
-
-                JamPacket pingPacket = new JamPacket(Guid.Empty, Guid.Empty, PingRequest.DATA_TYPE, pingRequest.GetBytes());
-                Send(pingPacket);
             }
         }
     }

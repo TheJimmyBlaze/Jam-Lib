@@ -11,6 +11,7 @@ namespace ExampleServer.Network.Data
     public struct AccountOnlineStatusChangedImperative
     {
         public const int DATA_TYPE = 107;
+        public const string DATA_SIGNITURE = "AccountOnlineStatusChangeImperative";
 
         public Account Account { get; set; }
         public bool Online { get; set; }

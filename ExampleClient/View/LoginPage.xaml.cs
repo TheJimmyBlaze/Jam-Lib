@@ -22,9 +22,6 @@ using System.Windows.Shapes;
 
 namespace ExampleClient.View
 {
-    /// <summary>
-    /// Interaction logic for LoginPage.xaml
-    /// </summary>
     public partial class LoginPage : Page, INotifyPropertyChanged
     {
         private const int CONNECT_TIMEOUT = 5000;

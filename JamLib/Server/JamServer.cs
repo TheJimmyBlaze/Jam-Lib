@@ -120,7 +120,7 @@ namespace JamLib.Server
         private bool alive;
 
         public readonly ISerializer Serializer;
-        internal readonly DataTypeRegistry DataTypeRegistry;
+        public readonly DataTypeRegistry DataTypeRegistry;
 
         public JamServer(IHashFactory hashFactory, ISerializer serializer)
         {

@@ -11,9 +11,6 @@ using System.Windows.Controls;
 
 namespace ExampleClient.View
 {
-    /// <summary>
-    /// Interaction logic for MessagePage.xaml
-    /// </summary>
     public partial class MessagePage : Page, INotifyPropertyChanged
     {
         #region Getters and Setters

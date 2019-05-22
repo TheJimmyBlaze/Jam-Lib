@@ -21,6 +21,17 @@ namespace JamLib.Packet.DataRegisty
             return dataType;
         }
 
+        public List<DataType> BulkRegister(List<DataType> dataTypes)
+        {
+            List<DataType> registeredDataTypes = new List<DataType>();
+            foreach (DataType dataType in dataTypes)
+            {
+                registeredDataTypes.Add(Register(dataType));
+            }
+
+            return registeredDataTypes;
+        }
+
         public List<DataType> GetByApp(string appSigniture)
         {
             return registeredDataTypes.Where(x => x.AppSigniture == appSigniture).ToList();

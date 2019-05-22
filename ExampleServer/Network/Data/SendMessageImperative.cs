@@ -10,6 +10,7 @@ namespace ExampleServer.Network.Data
     public struct SendMessageImperative
     {
         public const int DATA_TYPE = 110;
+        public const string DATA_SIGNITURE = "SendMessageImperative";
 
         public string Message { get; set; }
 

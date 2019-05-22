@@ -1,9 +1,12 @@
 ﻿using ExampleServer.Network;
+using ExampleServer.Network.Data;
 using JamLib.Database;
 using JamLib.Domain;
 using JamLib.Domain.Cryptography;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
+using JamLib.Packet.Data;
+using JamLib.Packet.DataRegisty;
 using JamLib.Server;
 using System;
 using System.Collections.Generic;
@@ -56,6 +59,7 @@ namespace ExampleServer
             Server.DisposedEvent += ServerEventHandler.OnDisposed;
             
             Server.Start(port, certificatePath, certificatePassword);
+            RegisterDataTypes();
 
             serverExiting.WaitOne();
         }
@@ -122,6 +126,20 @@ namespace ExampleServer
             Sha256HashFactory hashFactory = new Sha256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
 
             return hashFactory;
+        }
+
+        private static void RegisterDataTypes()
+        {
+            List<DataType> dataTypes = new List<DataType>
+            {
+                new DataType(APP_SIGNITURE, AccountOnlineStatusChangedImperative.DATA_SIGNITURE),
+                new DataType(APP_SIGNITURE, GetAccountsRequest.DATA_SIGNITURE),
+                new DataType(APP_SIGNITURE, GetAccountsResponse.DATA_SIGNITURE),
+                new DataType(APP_SIGNITURE, RegisterAccountRequest.DATA_SIGNITURE),
+                new DataType(APP_SIGNITURE, RegisterAccountResponse.DATA_SIGNITURE),
+                new DataType(APP_SIGNITURE, SendMessageImperative.DATA_SIGNITURE)
+            };
+            Server.DataTypeRegistry.BulkRegister(dataTypes);
         }
 
         public static void Exit()

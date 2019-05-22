@@ -20,9 +20,6 @@ using System.Windows.Shapes;
 
 namespace ExampleClient
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public JamClient Client { get; private set; }
@@ -30,13 +27,17 @@ namespace ExampleClient
         public MainWindow()
         {
             InitializeComponent();
-
-            Client = new JamClient(ExampleServer.Program.APP_SIGNITURE, new Utf8JsonSerializer());
-            Client.DisposedEvent += ClientEventHandler.OnClientDisposed;
-            Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
+            ResetClient();
 
             LoginPage loginPage = new LoginPage();
             Navigate(loginPage);
+        }
+
+        public void ResetClient()
+        {
+            Client = new JamClient(ExampleServer.Program.APP_SIGNITURE, new Utf8JsonSerializer());
+            Client.DisposedEvent += ClientEventHandler.OnClientDisposed;
+            Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
         }
 
         public void Navigate(Page page)
