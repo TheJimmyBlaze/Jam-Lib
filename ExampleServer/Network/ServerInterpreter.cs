@@ -23,9 +23,6 @@ namespace ExampleServer.Network
                 case RegisterAccountRequest.DATA_TYPE:
                     RegisterAccount(serverConnection, packet);
                     break;
-                case PlainTextImperative.DATA_TYPE:
-                    WritePlainTextToConsole(serverConnection, packet);
-                    break;
                 case GetAccountsRequest.DATA_TYPE:
                     GetRegisteredAccounts(serverConnection);
                     break;
@@ -56,12 +53,6 @@ namespace ExampleServer.Network
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterAccountResponse.DATA_TYPE, response.GetBytes());
             serverConnection.Send(responsePacket);
-        }
-
-        private static void WritePlainTextToConsole(JamServerConnection serverConnection, JamPacket packet)
-        {
-            PlainTextImperative plainText = new PlainTextImperative(packet.Data, serverConnection.Serializer);
-            Console.WriteLine("[{0}]: {1}", packet.Header.Sender, plainText.Text);
         }
 
         private static void GetRegisteredAccounts(JamServerConnection serverConnection)

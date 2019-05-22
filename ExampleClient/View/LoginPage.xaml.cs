@@ -31,6 +31,8 @@ namespace ExampleClient.View
 
         private const string SERVER_UNREACHABLE = "Connection attempt timeout";
         private const string SERVER_DISCONNECT = "Disconnected from server";
+        private const string APP_OFFLINE = "Service unavailable";
+
         private const string INVALID_CREDENTIALS = "Invalid username or password";
         private const string USERNAME_IN_USE = "Username already in use";
 
@@ -221,8 +223,12 @@ namespace ExampleClient.View
                 else
                 {
                     main.Client.Dispose();
-                    LoginMessageText = INVALID_CREDENTIALS;
                     ClearPassword();
+
+                    if (response.Result == LoginResponse.LoginResult.AppOffline)
+                        LoginMessageText = APP_OFFLINE;
+                    else
+                        LoginMessageText = INVALID_CREDENTIALS;
                 }
 
                 AwaitingLoginResponse = false;

@@ -3,6 +3,7 @@ using JamLib.Domain;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
+using JamLib.Packet.DataRegisty;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -44,21 +45,24 @@ namespace JamLib.Server
             Task.Run(() => SendPacketsFromQueue());
             Task.Run(() => PollConnection(DISCONNECT_POLL_FREQUENCY));
 
-            Server.OnClientConnected(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
+            Server.OnClientConnected(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
         }
         
         public void Dispose()
         {
-            Server.OnClientDisconnected(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, Client = Client, Account = Account });
+            if (alive)
+            {
+                alive = false;
+                Server.OnClientDisconnected(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint, Account = Account });
 
-            alive = false;
-            stream.Close();
-            
-            if (Account != null)
-                Server.DeleteConnection(Account.AccountID);
+                stream.Close();
+
+                if (Account != null)
+                    Server.DeleteConnection(Account.AccountID);
+            }
         }
 
-        public void Login(JamPacket loginPacket)
+        public void RespondToLogin(JamPacket loginPacket)
         {
             if (loginPacket.Header.DataType != LoginRequest.DATA_TYPE)
                 return;
@@ -69,28 +73,36 @@ namespace JamLib.Server
             try
             {
                 Account = AccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
-                Server.OnClientIdentified(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, Client = Client, Account = Account });
+                Server.OnClientIdentified(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint, Account = Account });
 
                 JamServerConnection existingConnection = Server.GetConnection(Account.AccountID);
                 if (existingConnection != null)
                 {
-                    Server.OnClientConnectedElsewhere(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, Client = existingConnection.Client, Account = existingConnection.Account });
+                    Server.OnClientConnectedElsewhere(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = existingConnection.Client.Client.RemoteEndPoint, Account = existingConnection.Account });
                     existingConnection.Dispose();
                 }
 
-                response = new LoginResponse(LoginResponse.LoginResult.Good, Account, Serializer);
-
-                Server.AddConnection(this);
+                List<DataType> registeredDataTypes = Server.DataTypeRegistry.GetByApp(request.AppSigniture);
+                if (registeredDataTypes.Count == 0)
+                {
+                    response = new LoginResponse(LoginResponse.LoginResult.AppOffline, null, null, Serializer);
+                    Server.OnClientOfflineAppRequest(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint, Account = Account });
+                }
+                else
+                {
+                    response = new LoginResponse(LoginResponse.LoginResult.Good, Account, registeredDataTypes, Serializer);
+                    Server.AddConnection(this);
+                }
             }
             catch (AccountFactory.InvalidUsernameException)
             {
-                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, Serializer);
-                Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
+                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, null, Serializer);
+                Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
             }
             catch (AccountFactory.InvalidAccessCodeException)
             {
-                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, Serializer);
-                Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, Client = Client });
+                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, null, Serializer);
+                Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
             }
             catch (EntityException)
             {
@@ -112,6 +124,23 @@ namespace JamLib.Server
             PingResponse response = new PingResponse(request.PingTimeUtc, DateTime.UtcNow, Serializer);
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, response.GetBytes());
+            Send(responsePacket);
+        }
+
+        public void RespondToDataTypeRegistration(JamPacket registerPacket)
+        {
+            if (registerPacket.Header.DataType != RegisterDataTypesRequest.DATA_TYPE)
+                return;
+
+            RegisterDataTypesRequest request = new RegisterDataTypesRequest(registerPacket.Data, Serializer);
+            List<DataType> registeredDataTypes = new List<DataType>();
+            foreach (DataType dataType in request.DataTypes)
+            {
+                registeredDataTypes.Add(Server.DataTypeRegistry.Register(dataType));
+            }
+            RegisterDataTypesResponse response = new RegisterDataTypesResponse(registeredDataTypes, Serializer);
+
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterDataTypesResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
         }
 

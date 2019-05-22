@@ -2,6 +2,8 @@
 using JamLib.Domain.Cryptography;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
+using JamLib.Packet.Data;
+using JamLib.Packet.DataRegisty;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,13 +29,13 @@ namespace JamLib.Server
         public class ConnectionEventArgs: EventArgs
         {
             public JamServerConnection ServerConnection { get; set; }
-            public TcpClient Client { get; set; }
+            public EndPoint RemoteEndPoint { get; set; }
         }
 
         public class IdentifiedConnectionEventArgs: EventArgs
         {
             public JamServerConnection ServerConnection { get; set; }
-            public TcpClient Client { get; set; }
+            public EndPoint RemoteEndPoint { get; set; }
             public Account Account { get; set; }
         }
 
@@ -48,6 +50,7 @@ namespace JamLib.Server
         public EventHandler<ConnectionEventArgs> ClientInvalidPasswordEvent;
 
         public EventHandler<IdentifiedConnectionEventArgs> ClientConnectedElsewhereEvent;
+        public EventHandler<IdentifiedConnectionEventArgs> ClientOfflineAppRequest;
 
         public EventHandler DisposedEvent;
 
@@ -91,6 +94,11 @@ namespace JamLib.Server
             ClientConnectedElsewhereEvent?.Invoke(this, e);
         }
 
+        public void OnClientOfflineAppRequest(IdentifiedConnectionEventArgs e)
+        {
+            ClientOfflineAppRequest?.Invoke(this, e);
+        }
+
         public void OnDisposed(EventArgs e)
         {
             DisposedEvent?.Invoke(this, e);
@@ -112,11 +120,14 @@ namespace JamLib.Server
         private bool alive;
 
         public readonly ISerializer Serializer;
+        internal readonly DataTypeRegistry DataTypeRegistry;
 
         public JamServer(IHashFactory hashFactory, ISerializer serializer)
         {
             HashFactory = hashFactory;
             Serializer = serializer;
+
+            DataTypeRegistry = new DataTypeRegistry();
         }
 
         public List<JamServerConnection> GetAllConnections()
@@ -149,11 +160,14 @@ namespace JamLib.Server
 
         public void Dispose()
         {
-            while (connections.Count > 0)
-                connections[0].Dispose();
+            if (alive)
+            {
+                alive = false;
+                while (connections.Count > 0)
+                    connections[0].Dispose();
 
-            alive = false;
-            OnDisposed(null);
+                OnDisposed(null);
+            }
         }
 
         private void Listen(int port)

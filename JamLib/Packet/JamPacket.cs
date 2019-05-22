@@ -87,8 +87,13 @@ namespace JamLib.Packet
                 HeaderBuffer = new byte[Marshal.SizeOf(typeof(JamPacketHeader))],
                 ReceiveCompleted = new AutoResetEvent(false)
             };
-            stream.BeginRead(state.HeaderBuffer, 0, state.HeaderBuffer.Length, ReceiveHeaderCallback, state);
-            state.ReceiveCompleted.WaitOne(RECEIVE_TIMEOUT);
+
+            try
+            {
+                stream.BeginRead(state.HeaderBuffer, 0, state.HeaderBuffer.Length, ReceiveHeaderCallback, state);
+                state.ReceiveCompleted.WaitOne(RECEIVE_TIMEOUT);
+            }
+            catch (IOException) { }
 
             if (state.Packet.Header.DataType == 0)
                 return null;

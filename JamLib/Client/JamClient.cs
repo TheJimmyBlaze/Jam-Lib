@@ -47,6 +47,7 @@ namespace JamLib.Client
 
         public Account Account { get; set; }
 
+        public readonly string AppSigniture;
         public readonly ISerializer Serializer;
 
         public bool IsConnected
@@ -54,8 +55,9 @@ namespace JamLib.Client
             get { return stream != null && stream.CanWrite && stream.CanRead; }
         }
         
-        public JamClient(ISerializer serializer)
+        public JamClient(string appSigniture, ISerializer serializer)
         {
+            AppSigniture = appSigniture;
             Serializer = serializer;
         }
 
@@ -98,14 +100,17 @@ namespace JamLib.Client
 
         public void Dispose()
         {
-            alive = false;
-            stream?.Close();
-            OnDisposed(null);
+            if (alive)
+            {
+                alive = false;
+                stream?.Close();
+                OnDisposed(null);
+            }
         }
 
         public void Login(string username, string password)
         {
-            LoginRequest loginRequest = new LoginRequest(username, password, Serializer);
+            LoginRequest loginRequest = new LoginRequest(AppSigniture, username, password, Serializer);
 
             JamPacket packet = new JamPacket(Guid.Empty, Guid.Empty, LoginRequest.DATA_TYPE, loginRequest.GetBytes());
             Send(packet);

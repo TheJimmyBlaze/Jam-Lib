@@ -17,10 +17,14 @@ namespace ExampleClient.Network
             {
                 MainWindow main = App.Current.MainWindow as MainWindow;
 
-                LoginPage loginPage = new LoginPage();
-                loginPage.NotifyDisconnect();
+                if (!(main.ViewFrame.Content is LoginPage))
+                {
+                    LoginPage loginPage = new LoginPage();
+                    loginPage.NotifyDisconnect();
 
-                main.Navigate(loginPage);
+                    main.Navigate(loginPage);
+                }
+
                 main.Cursor = Cursors.Arrow;
             });
         }

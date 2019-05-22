@@ -13,13 +13,15 @@ namespace JamLib.Packet.Data
     {
         public const int DATA_TYPE = 10;
 
+        public string AppSigniture { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
 
         private readonly ISerializer serializer;
 
-        public LoginRequest(string username, string password, ISerializer serializer)
+        public LoginRequest(string appSigniture, string username, string password, ISerializer serializer)
         {
+            AppSigniture = appSigniture;
             Username = username;
             Password = password;
             this.serializer = serializer;

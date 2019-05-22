@@ -31,7 +31,7 @@ namespace ExampleClient
         {
             InitializeComponent();
 
-            Client = new JamClient(new Utf8JsonSerializer());
+            Client = new JamClient(ExampleServer.Program.APP_SIGNITURE, new Utf8JsonSerializer());
             Client.DisposedEvent += ClientEventHandler.OnClientDisposed;
             Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
 

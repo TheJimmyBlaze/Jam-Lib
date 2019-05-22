@@ -17,8 +17,10 @@ using System.Threading.Tasks;
 
 namespace ExampleServer
 {
-    class Program
+    public class Program
     {
+        public const string APP_SIGNITURE = "JamLib.ExampleServer";
+
         public static JamServer Server { get; private set; }
 
         private static int port = int.MinValue;
@@ -49,6 +51,7 @@ namespace ExampleServer
             Server.ClientInvalidPasswordEvent += ServerEventHandler.OnClientInvalidPassword;
 
             Server.ClientConnectedElsewhereEvent += ServerEventHandler.OnClientConnectedElsewhere;
+            Server.ClientOfflineAppRequest += ServerEventHandler.OnClientOfflineAppRequest;
 
             Server.DisposedEvent += ServerEventHandler.OnDisposed;
             
