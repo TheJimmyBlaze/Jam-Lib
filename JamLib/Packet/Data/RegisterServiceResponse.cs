@@ -8,23 +8,24 @@ using System.Threading.Tasks;
 
 namespace JamLib.Packet.Data
 {
-    public struct RegisterDataTypesResponse
+    public struct RegisterServiceResponse
     {
         public const int DATA_TYPE = 16;
+        public const string DATA_SIGNITURE = "RegisterServiceResponse";
 
         public List<DataType> RegisteredDataTypes { get; set; }
 
         private readonly ISerializer serializer;
 
-        public RegisterDataTypesResponse(List<DataType> registeredDataTypes, ISerializer serializer)
+        public RegisterServiceResponse(List<DataType> registeredDataTypes, ISerializer serializer)
         {
             RegisteredDataTypes = registeredDataTypes;
             this.serializer = serializer;
         }
 
-        public RegisterDataTypesResponse(byte[] rawBytes, ISerializer serializer)
+        public RegisterServiceResponse(byte[] rawBytes, ISerializer serializer)
         {
-            this = serializer.GetStructFromBytes<RegisterDataTypesResponse>(rawBytes);
+            this = serializer.GetStructFromBytes<RegisterServiceResponse>(rawBytes);
             this.serializer = serializer;
         }
 

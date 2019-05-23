@@ -28,6 +28,8 @@ namespace JamLib.Server
 
         public Account Account { get; private set; }
 
+        public string AppSigniture { get; private set; }
+        public bool IsService { get; private set; }
         public readonly ISerializer Serializer;
 
         public JamServerConnection(TcpClient client, SslStream stream, JamServer server)
@@ -73,6 +75,7 @@ namespace JamLib.Server
             try
             {
                 Account = AccountFactory.Authenticate(request.Username, request.Password, Server.HashFactory);
+                AppSigniture = request.AppSigniture;
                 Server.OnClientIdentified(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint, Account = Account });
 
                 JamServerConnection existingConnection = Server.GetConnection(Account.AccountID);
@@ -82,26 +85,31 @@ namespace JamLib.Server
                     existingConnection.Dispose();
                 }
 
-                List<DataType> registeredDataTypes = Server.DataTypeRegistry.GetByApp(request.AppSigniture);
-                if (registeredDataTypes.Count == 0)
+                JamServerConnection appServiceConnection = Server.GetAppServiceConnection(AppSigniture);
+                if (appServiceConnection == null && Server.AppSigniture != AppSigniture)
                 {
-                    response = new LoginResponse(LoginResponse.LoginResult.AppOffline, null, null, Serializer);
+                    response = new LoginResponse(LoginResponse.LoginResult.AppOffline, null, Guid.Empty, null, Serializer);
                     Server.OnClientOfflineAppRequest(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint, Account = Account });
                 }
                 else
                 {
-                    response = new LoginResponse(LoginResponse.LoginResult.Good, Account, registeredDataTypes, Serializer);
+                    Guid appServiceID = Guid.Empty;
+                    if (appServiceConnection != null)
+                        appServiceID = appServiceConnection.Account.AccountID;
+
+                    List<DataType> registeredDataTypes = Server.DataTypeRegistry.GetByApp(request.AppSigniture);
+                    response = new LoginResponse(LoginResponse.LoginResult.Good, Account, appServiceID, registeredDataTypes, Serializer);
                     Server.AddConnection(this);
                 }
             }
             catch (AccountFactory.InvalidUsernameException)
             {
-                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, null, Serializer);
+                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, Guid.Empty, null, Serializer);
                 Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
             }
             catch (AccountFactory.InvalidAccessCodeException)
             {
-                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, null, Serializer);
+                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, Guid.Empty, null, Serializer);
                 Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
             }
             catch (EntityException)
@@ -127,15 +135,18 @@ namespace JamLib.Server
             Send(responsePacket);
         }
 
-        public void RespondToDataTypeRegistration(JamPacket registerPacket)
+        public void RespondToServiceRegistration(JamPacket registerPacket)
         {
-            if (registerPacket.Header.DataType != RegisterDataTypesRequest.DATA_TYPE)
+            if (registerPacket.Header.DataType != RegisterServiceRequest.DATA_TYPE)
                 return;
 
-            RegisterDataTypesRequest request = new RegisterDataTypesRequest(registerPacket.Data, Serializer);
-            RegisterDataTypesResponse response = new RegisterDataTypesResponse(Server.DataTypeRegistry.BulkRegister(request.DataTypes), Serializer);
+            RegisterServiceRequest request = new RegisterServiceRequest(registerPacket.Data, Serializer);
+            List<DataType> registeredDataTypes = Server.DataTypeRegistry.BulkRegister(request.ServiceDataTypes);
+            IsService = true;
 
-            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterDataTypesResponse.DATA_TYPE, response.GetBytes());
+            RegisterServiceResponse response = new RegisterServiceResponse(registeredDataTypes, Serializer);
+
+            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterServiceResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
         }
 

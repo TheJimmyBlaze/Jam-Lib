@@ -29,5 +29,10 @@ namespace JamLib.Packet.DataRegisty
             }
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

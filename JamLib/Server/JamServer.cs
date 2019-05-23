@@ -20,7 +20,7 @@ namespace JamLib.Server
     public class JamServer: IDisposable
     {
         #region Event Handlers
-        public class MessageReceivedEventArgs : EventArgs
+        public class MessageReceivedEventArgs: EventArgs
         {
             public JamServerConnection ServerConnection { get; set; }
             public JamPacket Packet { get; set; }
@@ -119,20 +119,42 @@ namespace JamLib.Server
 
         private bool alive;
 
-        public readonly ISerializer Serializer;
+        public readonly string AppSigniture;
         public readonly DataTypeRegistry DataTypeRegistry;
+        public readonly ISerializer Serializer;
 
-        public JamServer(IHashFactory hashFactory, ISerializer serializer)
+        public JamServer(string appSigniture, DataTypeRegistry dataTypeRegistry, IHashFactory hashFactory, ISerializer serializer)
         {
+            AppSigniture = appSigniture;
+            DataTypeRegistry = dataTypeRegistry;
+            RegisterInternalDataTypes();
+
             HashFactory = hashFactory;
             Serializer = serializer;
+        }
 
-            DataTypeRegistry = new DataTypeRegistry();
+        private void RegisterInternalDataTypes()
+        {
+            List<DataType> internalDataTypes = new List<DataType>()
+            {
+                new DataType(AppSigniture, LoginRequest.DATA_SIGNITURE),
+                new DataType(AppSigniture, LoginResponse.DATA_SIGNITURE),
+                new DataType(AppSigniture, PingRequest.DATA_SIGNITURE),
+                new DataType(AppSigniture, PingResponse.DATA_SIGNITURE),
+                new DataType(AppSigniture, RegisterServiceRequest.DATA_SIGNITURE),
+                new DataType(AppSigniture, RegisterServiceResponse.DATA_SIGNITURE)
+            };
+            DataTypeRegistry.BulkRegister(internalDataTypes);
         }
 
         public List<JamServerConnection> GetAllConnections()
         {
             return connections;
+        }
+
+        public JamServerConnection GetAppServiceConnection(string appSigniture)
+        {
+            return connections.SingleOrDefault(x => x.AppSigniture == appSigniture && x.IsService);
         }
 
         public JamServerConnection GetConnection(Guid accountID)
@@ -147,7 +169,11 @@ namespace JamLib.Server
 
         public void DeleteConnection(Guid accountID)
         {
-            connections.Remove(GetConnection(accountID));
+            JamServerConnection connection = GetConnection(accountID);
+            if (connection.IsService)
+                DataTypeRegistry.Deregister(connection.AppSigniture);
+
+            connections.Remove(connection);
         }
 
         public void Start(int port, string certificate, string certificatePassword)

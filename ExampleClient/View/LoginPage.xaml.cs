@@ -2,6 +2,7 @@
 using JamLib.Client;
 using JamLib.Packet;
 using JamLib.Packet.Data;
+using JamLib.Packet.DataRegisty;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -214,6 +215,8 @@ namespace ExampleClient.View
                 if (response.Result == LoginResponse.LoginResult.Good)
                 {
                     main.Client.Account = response.Account;
+                    main.Client.DataTypeRegistry = new DataTypeRegistry(response.RegisteredDataTypes);
+
                     MessagePage messagePage = new MessagePage();
                     main.Navigate(messagePage);
                 }

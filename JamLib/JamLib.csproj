@@ -96,8 +96,8 @@
     <Compile Include="Packet\Data\LoginResponse.cs" />
     <Compile Include="Packet\Data\PingRequest.cs" />
     <Compile Include="Packet\Data\PingResponse.cs" />
-    <Compile Include="Packet\Data\RegisterDataTypesRequest.cs" />
-    <Compile Include="Packet\Data\RegisterDataTypesResponse.cs" />
+    <Compile Include="Packet\Data\RegisterServiceRequest.cs" />
+    <Compile Include="Packet\Data\RegisterServiceResponse.cs" />
     <Compile Include="Packet\JamPacket.cs" />
     <Compile Include="Packet\JamPacketHeader.cs" />
     <Compile Include="Packet\Data\LoginRequest.cs" />

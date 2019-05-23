@@ -1,6 +1,7 @@
 ﻿using JamLib.Packet.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Security;
@@ -78,7 +79,7 @@ namespace JamLib.Packet
 
         public static JamPacket Receive(SslStream stream)
         {
-            const int RECEIVE_TIMEOUT = 5000;
+            const int RECEIVE_TIMEOUT = 2000;
 
             ReceiveState state = new ReceiveState()
             {
@@ -91,7 +92,10 @@ namespace JamLib.Packet
             try
             {
                 stream.BeginRead(state.HeaderBuffer, 0, state.HeaderBuffer.Length, ReceiveHeaderCallback, state);
-                state.ReceiveCompleted.WaitOne(RECEIVE_TIMEOUT);
+                if (Debugger.IsAttached)
+                    state.ReceiveCompleted.WaitOne();
+                else
+                    state.ReceiveCompleted.WaitOne(RECEIVE_TIMEOUT);
             }
             catch (IOException) { }
 

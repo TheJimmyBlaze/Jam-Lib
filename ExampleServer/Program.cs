@@ -22,8 +22,7 @@ namespace ExampleServer
 {
     public class Program
     {
-        public const string APP_SIGNITURE = "JamLib.ExampleServer";
-
+        public static string APP_SIGNITURE = "JamLib.ExampleServer";
         public static JamServer Server { get; private set; }
 
         private static int port = int.MinValue;
@@ -42,7 +41,8 @@ namespace ExampleServer
             EnsureRootAccount(hashFactory);
 
             Console.WriteLine("Starting server...");
-            Server = new JamServer(hashFactory, new Utf8JsonSerializer());
+            DataTypeRegistry prepopulatedRegistry = RegisterDataTypes(APP_SIGNITURE);
+            Server = new JamServer(APP_SIGNITURE, prepopulatedRegistry, hashFactory, new Utf8JsonSerializer());
 
             Server.MessageReceivedEvent += ServerEventHandler.OnMessageReceived;
 
@@ -59,7 +59,8 @@ namespace ExampleServer
             Server.DisposedEvent += ServerEventHandler.OnDisposed;
             
             Server.Start(port, certificatePath, certificatePassword);
-            RegisterDataTypes();
+
+            Console.WriteLine("Server started successfully.\n");
 
             serverExiting.WaitOne();
         }
@@ -128,18 +129,25 @@ namespace ExampleServer
             return hashFactory;
         }
 
-        private static void RegisterDataTypes()
+        private static DataTypeRegistry RegisterDataTypes(string appSigniture)
         {
+            DataTypeRegistry registry = new DataTypeRegistry();
+
+            registry.DataTypeRegisteredEvent += DataTypeRegistryEventHandler.OnDataTypeRegistered;
+            registry.DataTypesDeregisteredEvent += DataTypeRegistryEventHandler.OnDataTypeDeregistered;
+
             List<DataType> dataTypes = new List<DataType>
             {
-                new DataType(APP_SIGNITURE, AccountOnlineStatusChangedImperative.DATA_SIGNITURE),
-                new DataType(APP_SIGNITURE, GetAccountsRequest.DATA_SIGNITURE),
-                new DataType(APP_SIGNITURE, GetAccountsResponse.DATA_SIGNITURE),
-                new DataType(APP_SIGNITURE, RegisterAccountRequest.DATA_SIGNITURE),
-                new DataType(APP_SIGNITURE, RegisterAccountResponse.DATA_SIGNITURE),
-                new DataType(APP_SIGNITURE, SendMessageImperative.DATA_SIGNITURE)
+                new DataType(appSigniture, AccountOnlineStatusChangedImperative.DATA_SIGNITURE),
+                new DataType(appSigniture, GetAccountsRequest.DATA_SIGNITURE),
+                new DataType(appSigniture, GetAccountsResponse.DATA_SIGNITURE),
+                new DataType(appSigniture, RegisterAccountRequest.DATA_SIGNITURE),
+                new DataType(appSigniture, RegisterAccountResponse.DATA_SIGNITURE),
+                new DataType(appSigniture, SendMessageImperative.DATA_SIGNITURE)
             };
-            Server.DataTypeRegistry.BulkRegister(dataTypes);
+
+            registry.BulkRegister(dataTypes);
+            return registry;
         }
 
         public static void Exit()

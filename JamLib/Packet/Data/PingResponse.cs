@@ -10,6 +10,7 @@ namespace JamLib.Packet.Data
     public struct PingResponse
     {
         public const int DATA_TYPE = 6;
+        public const string DATA_SIGNITURE = "PingResponse";
 
         public DateTime PingTimeUtc { get; set; }
         public DateTime PongTimeUtc { get; set; }
