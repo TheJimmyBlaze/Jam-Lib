@@ -15,9 +15,6 @@ namespace JamLib.Server
                 case PingRequest.DATA_TYPE:
                     serverConnection.RespondToPing(packet);
                     break;
-                case RegisterServiceRequest.DATA_TYPE:
-                    serverConnection.RespondToServiceRegistration(packet);
-                    break;
                 default:
                     serverConnection.Server.OnMessageReceived(new JamServer.MessageReceivedEventArgs() { ServerConnection = serverConnection, Packet = packet });
                     break;

@@ -91,13 +91,9 @@
     <Compile Include="Domain\Serialization\ISerializer.cs" />
     <Compile Include="Domain\Serialization\StructMarshal.cs" />
     <Compile Include="Domain\Serialization\Utf8JsonSerializer.cs" />
-    <Compile Include="Packet\DataRegisty\DataType.cs" />
-    <Compile Include="Packet\DataRegisty\DataTypeRegistry.cs" />
     <Compile Include="Packet\Data\LoginResponse.cs" />
     <Compile Include="Packet\Data\PingRequest.cs" />
     <Compile Include="Packet\Data\PingResponse.cs" />
-    <Compile Include="Packet\Data\RegisterServiceRequest.cs" />
-    <Compile Include="Packet\Data\RegisterServiceResponse.cs" />
     <Compile Include="Packet\JamPacket.cs" />
     <Compile Include="Packet\JamPacketHeader.cs" />
     <Compile Include="Packet\Data\LoginRequest.cs" />

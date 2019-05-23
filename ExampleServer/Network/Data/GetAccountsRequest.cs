@@ -10,7 +10,6 @@ namespace ExampleServer.Network.Data
     public struct GetAccountsRequest
     {
         public const int DATA_TYPE = 105;
-        public const string DATA_SIGNITURE = "GetAccountsRequest";
 
         private readonly ISerializer serializer;
 

@@ -3,7 +3,6 @@ using JamLib.Domain;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
-using JamLib.Packet.DataRegisty;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -86,9 +85,9 @@ namespace JamLib.Server
                 }
 
                 JamServerConnection appServiceConnection = Server.GetAppServiceConnection(AppSigniture);
-                if (appServiceConnection == null && Server.AppSigniture != AppSigniture)
+                if (appServiceConnection == null && AppSigniture != Server.AppSigniture)
                 {
-                    response = new LoginResponse(LoginResponse.LoginResult.AppOffline, null, Guid.Empty, null, Serializer);
+                    response = new LoginResponse(LoginResponse.LoginResult.AppOffline, null, Guid.Empty, Serializer);
                     Server.OnClientOfflineAppRequest(new JamServer.IdentifiedConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint, Account = Account });
                 }
                 else
@@ -97,19 +96,18 @@ namespace JamLib.Server
                     if (appServiceConnection != null)
                         appServiceID = appServiceConnection.Account.AccountID;
 
-                    List<DataType> registeredDataTypes = Server.DataTypeRegistry.GetByApp(request.AppSigniture);
-                    response = new LoginResponse(LoginResponse.LoginResult.Good, Account, appServiceID, registeredDataTypes, Serializer);
+                    response = new LoginResponse(LoginResponse.LoginResult.Good, Account, appServiceID, Serializer);
                     Server.AddConnection(this);
                 }
             }
             catch (AccountFactory.InvalidUsernameException)
             {
-                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, Guid.Empty, null, Serializer);
+                response = new LoginResponse(LoginResponse.LoginResult.BadUsername, null, Guid.Empty, Serializer);
                 Server.OnClientInvalidUsername(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
             }
             catch (AccountFactory.InvalidAccessCodeException)
             {
-                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, Guid.Empty, null, Serializer);
+                response = new LoginResponse(LoginResponse.LoginResult.BadPassword, null, Guid.Empty, Serializer);
                 Server.OnClientInvalidPassword(new JamServer.ConnectionEventArgs() { ServerConnection = this, RemoteEndPoint = Client.Client.RemoteEndPoint });
             }
             catch (EntityException)
@@ -132,21 +130,6 @@ namespace JamLib.Server
             PingResponse response = new PingResponse(request.PingTimeUtc, DateTime.UtcNow, Serializer);
 
             JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, PingResponse.DATA_TYPE, response.GetBytes());
-            Send(responsePacket);
-        }
-
-        public void RespondToServiceRegistration(JamPacket registerPacket)
-        {
-            if (registerPacket.Header.DataType != RegisterServiceRequest.DATA_TYPE)
-                return;
-
-            RegisterServiceRequest request = new RegisterServiceRequest(registerPacket.Data, Serializer);
-            List<DataType> registeredDataTypes = Server.DataTypeRegistry.BulkRegister(request.ServiceDataTypes);
-            IsService = true;
-
-            RegisterServiceResponse response = new RegisterServiceResponse(registeredDataTypes, Serializer);
-
-            JamPacket responsePacket = new JamPacket(Guid.Empty, Guid.Empty, RegisterServiceResponse.DATA_TYPE, response.GetBytes());
             Send(responsePacket);
         }
 

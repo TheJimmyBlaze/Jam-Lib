@@ -10,7 +10,6 @@ namespace ExampleServer.Network.Data
     public struct RegisterAccountRequest
     {
         public const int DATA_TYPE = 100;
-        public const string DATA_SIGNITURE = "RegisterAccountRequest";
 
         public string Username { get; set; }
         public string Password { get; set; }

@@ -55,7 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Network\DataTypeRegistryEventHandler.cs" />
     <Compile Include="Network\Data\AccountOnlineStatusChangedImperative.cs" />
     <Compile Include="Network\Data\GetAccountsRequest.cs" />
     <Compile Include="Network\Data\GetAccountsResponse.cs" />

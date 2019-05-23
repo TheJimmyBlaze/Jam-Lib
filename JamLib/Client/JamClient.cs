@@ -3,7 +3,6 @@ using JamLib.Domain;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
-using JamLib.Packet.DataRegisty;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -41,6 +40,7 @@ namespace JamLib.Client
 
         private readonly AutoResetEvent connectionCompleted = new AutoResetEvent(false);
 
+        public readonly string AppSigniture;
         private SslStream stream;
         private bool alive;
 
@@ -48,8 +48,6 @@ namespace JamLib.Client
 
         public Account Account { get; set; }
 
-        public readonly string AppSigniture;
-        public DataTypeRegistry DataTypeRegistry { get; set; } = null;
         public readonly ISerializer Serializer;
 
         public bool IsConnected

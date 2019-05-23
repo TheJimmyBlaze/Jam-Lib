@@ -3,7 +3,6 @@ using JamLib.Domain.Cryptography;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
-using JamLib.Packet.DataRegisty;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -117,34 +116,16 @@ namespace JamLib.Server
         private X509Certificate serverCertificate;
         public readonly IHashFactory HashFactory;
 
+        public readonly string AppSigniture;
         private bool alive;
 
-        public readonly string AppSigniture;
-        public readonly DataTypeRegistry DataTypeRegistry;
         public readonly ISerializer Serializer;
 
-        public JamServer(string appSigniture, DataTypeRegistry dataTypeRegistry, IHashFactory hashFactory, ISerializer serializer)
+        public JamServer(string appSigniture, IHashFactory hashFactory, ISerializer serializer)
         {
             AppSigniture = appSigniture;
-            DataTypeRegistry = dataTypeRegistry;
-            RegisterInternalDataTypes();
-
             HashFactory = hashFactory;
             Serializer = serializer;
-        }
-
-        private void RegisterInternalDataTypes()
-        {
-            List<DataType> internalDataTypes = new List<DataType>()
-            {
-                new DataType(AppSigniture, LoginRequest.DATA_SIGNITURE),
-                new DataType(AppSigniture, LoginResponse.DATA_SIGNITURE),
-                new DataType(AppSigniture, PingRequest.DATA_SIGNITURE),
-                new DataType(AppSigniture, PingResponse.DATA_SIGNITURE),
-                new DataType(AppSigniture, RegisterServiceRequest.DATA_SIGNITURE),
-                new DataType(AppSigniture, RegisterServiceResponse.DATA_SIGNITURE)
-            };
-            DataTypeRegistry.BulkRegister(internalDataTypes);
         }
 
         public List<JamServerConnection> GetAllConnections()
@@ -170,9 +151,6 @@ namespace JamLib.Server
         public void DeleteConnection(Guid accountID)
         {
             JamServerConnection connection = GetConnection(accountID);
-            if (connection.IsService)
-                DataTypeRegistry.Deregister(connection.AppSigniture);
-
             connections.Remove(connection);
         }
 

@@ -12,7 +12,6 @@ namespace JamLib.Packet.Data
     public struct LoginRequest
     {
         public const int DATA_TYPE = 10;
-        public const string DATA_SIGNITURE = "LoginRequest";
 
         public string AppSigniture { get; set; }
         public string Username { get; set; }

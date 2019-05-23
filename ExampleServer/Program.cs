@@ -6,7 +6,6 @@ using JamLib.Domain.Cryptography;
 using JamLib.Domain.Serialization;
 using JamLib.Packet;
 using JamLib.Packet.Data;
-using JamLib.Packet.DataRegisty;
 using JamLib.Server;
 using System;
 using System.Collections.Generic;
@@ -41,8 +40,7 @@ namespace ExampleServer
             EnsureRootAccount(hashFactory);
 
             Console.WriteLine("Starting server...");
-            DataTypeRegistry prepopulatedRegistry = RegisterDataTypes(APP_SIGNITURE);
-            Server = new JamServer(APP_SIGNITURE, prepopulatedRegistry, hashFactory, new Utf8JsonSerializer());
+            Server = new JamServer(APP_SIGNITURE, hashFactory, new Utf8JsonSerializer());
 
             Server.MessageReceivedEvent += ServerEventHandler.OnMessageReceived;
 
@@ -127,27 +125,6 @@ namespace ExampleServer
             Sha256HashFactory hashFactory = new Sha256HashFactory(MILLISECONDS_TO_SPEND_HASHING, pepperBytes);
 
             return hashFactory;
-        }
-
-        private static DataTypeRegistry RegisterDataTypes(string appSigniture)
-        {
-            DataTypeRegistry registry = new DataTypeRegistry();
-
-            registry.DataTypeRegisteredEvent += DataTypeRegistryEventHandler.OnDataTypeRegistered;
-            registry.DataTypesDeregisteredEvent += DataTypeRegistryEventHandler.OnDataTypeDeregistered;
-
-            List<DataType> dataTypes = new List<DataType>
-            {
-                new DataType(appSigniture, AccountOnlineStatusChangedImperative.DATA_SIGNITURE),
-                new DataType(appSigniture, GetAccountsRequest.DATA_SIGNITURE),
-                new DataType(appSigniture, GetAccountsResponse.DATA_SIGNITURE),
-                new DataType(appSigniture, RegisterAccountRequest.DATA_SIGNITURE),
-                new DataType(appSigniture, RegisterAccountResponse.DATA_SIGNITURE),
-                new DataType(appSigniture, SendMessageImperative.DATA_SIGNITURE)
-            };
-
-            registry.BulkRegister(dataTypes);
-            return registry;
         }
 
         public static void Exit()
