@@ -17,9 +17,6 @@ namespace ExampleClient.Network
         {
             switch (packet.Header.DataType)
             {
-                case LoginResponse.DATA_TYPE:
-                    HandleLoginResponse(packet);
-                    break;
                 case RegisterAccountResponse.DATA_TYPE:
                     HandleAccountRegistrationResponse(packet);
                     break;
@@ -33,18 +30,6 @@ namespace ExampleClient.Network
                     HandleSendMessageImperative(packet);
                     break;
             }
-        }
-
-        private static void HandleLoginResponse(JamPacket packet)
-        {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                MainWindow main = App.Current.MainWindow as MainWindow;
-                if (main.ViewFrame.Content is LoginPage page)
-                {
-                    Task.Run(() => page.HandleLoginResponse(packet));
-                }
-            });
         }
 
         private static void HandleAccountRegistrationResponse(JamPacket packet)

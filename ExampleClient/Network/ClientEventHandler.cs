@@ -34,5 +34,18 @@ namespace ExampleClient.Network
         {
             ClientInterpreter.Interpret(e.Packet);
         }
+
+        internal static void OnLoginResult(object sender, JamClient.LoginResultEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                MainWindow main = App.Current.MainWindow as MainWindow;
+
+                if (main.ViewFrame.Content is LoginPage page)
+                {
+                    page.HandleLoginResult(e.Result);
+                }
+            });
+        }
     }
 }

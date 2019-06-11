@@ -201,37 +201,28 @@ namespace ExampleClient.View
             });
         }
 
-        public void HandleLoginResponse(JamPacket packet)
+        public void HandleLoginResult(LoginResponse.LoginResult loginResult)
         {
-            if (packet.Header.DataType != LoginResponse.DATA_TYPE)
-                return;
+            MainWindow main = App.Current.MainWindow as MainWindow;
 
-            App.Current.Dispatcher.Invoke(() =>
+            if (loginResult == LoginResponse.LoginResult.Good)
             {
-                MainWindow main = App.Current.MainWindow as MainWindow;
-                LoginResponse response = new LoginResponse(packet.Data, main.Client.Serializer);
+                MessagePage messagePage = new MessagePage();
+                main.Navigate(messagePage);
+            }
+            else
+            {
+                ClearPassword();
 
-                if (response.Result == LoginResponse.LoginResult.Good)
-                {
-                    main.Client.Account = response.Account;
-                    MessagePage messagePage = new MessagePage();
-                    main.Navigate(messagePage);
-                }
+                if (loginResult == LoginResponse.LoginResult.AppOffline)
+                    LoginMessageText = APP_OFFLINE;
                 else
-                {
-                    main.Client.Dispose();
-                    ClearPassword();
+                    LoginMessageText = INVALID_CREDENTIALS;
+            }
 
-                    if (response.Result == LoginResponse.LoginResult.AppOffline)
-                        LoginMessageText = APP_OFFLINE;
-                    else
-                        LoginMessageText = INVALID_CREDENTIALS;
-                }
-
-                AwaitingLoginResponse = false;
-                if (!WorkInProgress)
-                    Cursor = Cursors.Arrow;
-            });
+            AwaitingLoginResponse = false;
+            if (!WorkInProgress)
+                Cursor = Cursors.Arrow;
         }
 
         public void HandleRegistrationResponse(JamPacket packet)

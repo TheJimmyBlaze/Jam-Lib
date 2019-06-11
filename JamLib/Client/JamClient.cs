@@ -24,12 +24,23 @@ namespace JamLib.Client
             public JamPacket Packet { get; set; }
         }
 
+        public class LoginResultEventArgs: EventArgs
+        {
+            public LoginResponse.LoginResult Result { get; set; }
+        }
+
         public EventHandler<MessageReceivedEventArgs> MessageReceivedEvent;
+        public EventHandler<LoginResultEventArgs> LoginResultEvent;
         public EventHandler DisposedEvent;
 
         public void OnMessageReceived(MessageReceivedEventArgs e)
         {
             MessageReceivedEvent?.Invoke(this, e);
+        }
+
+        public void OnLoginResult(LoginResultEventArgs e)
+        {
+            LoginResultEvent?.Invoke(this, e);
         }
 
         public void OnDisposed(EventArgs e)
@@ -111,6 +122,26 @@ namespace JamLib.Client
 
             JamPacket packet = new JamPacket(Guid.Empty, Guid.Empty, LoginRequest.DATA_TYPE, loginRequest.GetBytes());
             Send(packet);
+        }
+
+        public void HandleLoginResponse(JamPacket loginResponsePacket)
+        {
+            if (loginResponsePacket.Header.DataType != LoginResponse.DATA_TYPE)
+                return;
+
+            LoginResponse response = new LoginResponse(loginResponsePacket.Data, Serializer);
+            LoginResultEventArgs resultArgs = new LoginResultEventArgs() { Result = response.Result };
+
+            if (response.Result == LoginResponse.LoginResult.Good)
+            {
+                Account = response.Account;
+                OnLoginResult(resultArgs);
+            }
+            else
+            {
+                OnLoginResult(resultArgs);
+                Dispose();
+            }
         }
 
         public void RespondToPing(JamPacket pingPacket)

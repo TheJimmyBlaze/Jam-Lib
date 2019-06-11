@@ -38,6 +38,7 @@ namespace ExampleClient
             Client = new JamClient(ExampleServer.Program.APP_SIGNITURE, new Utf8JsonSerializer());
             Client.DisposedEvent += ClientEventHandler.OnClientDisposed;
             Client.MessageReceivedEvent += ClientEventHandler.OnMessageReceived;
+            Client.LoginResultEvent += ClientEventHandler.OnLoginResult;
         }
 
         public void Navigate(Page page)

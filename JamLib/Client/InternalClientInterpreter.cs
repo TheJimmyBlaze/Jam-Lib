@@ -14,6 +14,9 @@ namespace JamLib.Client
         {
             switch (packet.Header.DataType)
             {
+                case LoginResponse.DATA_TYPE:
+                    client.HandleLoginResponse(packet);
+                    break;
                 case PingRequest.DATA_TYPE:
                     client.RespondToPing(packet);
                     break;
